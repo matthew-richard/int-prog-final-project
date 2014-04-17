@@ -1,0 +1,165 @@
+Intermediate Programming 600.120
+
+Final Project
+-------------
+
+The final project in the course will try to test everything that
+we have learned and must be written in C++. 
+
+The project has two parts. In the first part, you will design
+and implement a complex data structure as a template.
+You should test the data structure and benchmark its performance
+in several different scenarios.
+
+In the second part, you will design and implement an application
+that uses the above data structure, involving some of the concepts
+we learned in the second part of the course.
+
+Part 1
+------
+
+Design and develop a template based on the expandable multi-level hash
+data structure presented in class. The data structure (repository)
+should support at least the following operations:
+
+1. MLH_insert that receives a key and an object and inserts the object
+   into the repository if an object with that key does not exist already.
+
+2. MLH_delete that receives a key and removes the corresponding
+   object from the Repository if it exists.
+
+3. MLH_get that receives a key and returns the appropriate object from the
+   Repository if it exists.
+
+4. << that prints the number of objects in the repository, the current
+   number of levels of the deepest multi-level hash node, and the number of
+   hash nodes in the repository. As an option, this operation will print
+   all the keys in the repository and the object associated with each key.
+   Such an option should be implemented using an MLH_set_print_option
+   Operation after which the option is set until further MLH_set_print_option
+   calls.
+
+A counter should maintain the number of steps performed on
+the repository. The counter should be initialized to 0 and should
+be incremented each time the a multi-level hash node is inspected
+in any level of the data structure. This gives an indication of how much
+effort was spent so far.
+
+A Random_operation class is provided in order to generate the random
+operations to be invoked on the repository.
+
+A ML_hash function is provided for the multi-level hash functions.
+Instantiate your data structure template for an object that includes a
+single integer. The integer should contain the index of the current
+operation performed (the first operation has an index of 1).
+
+Develop a benchmark program and perform the following benchmarks:
+
+1.a Execute with keys in the range 1..100, for 1000 operations,
+    printing every 100 operations (print including content).
+
+1.b Execute with keys in the range 1..100, for 1,000,000 operations,
+    printing every 100,000 operations (print including content).
+
+1.c Execute with keys in the range 1..10,000, for 1,000,000
+    operations, printing every 100,000 operations.
+
+1.d Execute with keys in the range 1..100,000, for 10,000,000
+    operations, printing every 1,000,000 operations.
+
+2.  Re-run 1.c, and 1.d with 10 different seeds 1-10. Include
+    in your document the number of steps in each case and calculate
+    the average number of steps.
+
+This part of the project should be completed by Friday, April 25.
+It is advisable to come show it to us as soon as it is ready to get
+some feedback as you move to the second part.
+
+Part 2
+------
+
+Design and develop an application program that manages a vehicle
+service center. The center services different kinds of vehicles,
+including (regular) cars, hybrids, buses, and motorcycles.
+
+All vehicles have the following properties:
+- Unique id assigned by the user (range 1..100000) 
+- Model year (range 2000..2014)
+- Color
+- Mileage
+
+Cars have the following properties:
+- Engine size (cc)
+- Gas (premium, plus, regular)
+- Engine pollution level.
+
+Hybrids are cars that also have the following properties:
+- Motor power.
+- Motor overall usage (in hours).
+- Battery capacity.
+
+Motorcycles have the following properties:
+- Engine size (cc)
+- Front wheel size
+- Back wheel size
+
+Buses have the following properties:
+- Passenger capacity.
+
+A vehicle brought in to the center can have multiple tasks 
+(unlimited number) performed on it while it is in for service.  
+Examples for tasks include scheduled maintenance, brake change, 
+tune-up, etc. Each task has a name, cost of parts, and cost of labor 
+associated with it. Tasks are assigned to a vehicle when it enters 
+the service center and can be added while it is still in service.
+
+Your application program should be able to insert records for vehicles 
+entering the service center, and checkout a vehicle, printing its bill 
+and deleting its information. Each record should store all of a vehicle's
+relevant information (depending on its type), including the 
+tasks currently being performed on the vehicle. The vehicles should be 
+stored and accessed using the multi-level hash template.
+
+Your program should allow the user to view a report of all vehicles
+currently in service, and to view the status of a single vehicle.
+
+Be creative!  Think about the types of operations a service center
+might need and implement a few of them not specified here.
+
+Some advice
+-----------
+
+-Get your data structure working first. Do not even think about
+ writing your application program until the data structure is solid!
+
+-Compile often. The C++ error messages can be confusing -- tackle
+ them in manageable chunks. 
+
+-Test as you go. Write small driver programs to help you debug, and
+ keep these programs around to avoid duplicating your own work.
+
+-Pay special attention to your destructors. Be sure that deleting a
+ vehicle record frees up ALL associated storage.
+
+-Design, design, design. This project is complex enough that you will
+ likely not have enough time to start from scratch if you find you've
+ gone down the wrong path three days before submission. Try to get it
+ right the first time! We are here to help -- come and talk with us
+ to bounce around some ideas.
+
+-------------------------------
+
+Submission date for both parts of the project is:
+Friday May 2nd, 10pm.
+
+Submission is accomplished by e-mailing a tar file to cs120@cs.jhu.edu
+and by presenting your project in a pre-arranged meeting with the
+Instructors & TA. E-mails will be accepted only up to the deadline.
+
+Do not include executable/object files or cores in your tar (include
+only the files you want to submit, including a detailed design
+document, your results from Part 1, source code, and a Makefile).
+
+The development environment and the place where you have to check your
+program is *only* on the ugrad1-20 machines. We ask that you demonstrate
+your programs there during the interactive project grading session.
