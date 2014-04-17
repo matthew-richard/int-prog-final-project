@@ -49,7 +49,7 @@ private:
                 MLH ops (insert, delete, get). What we use to traverse the tree in search of a key. Returns
                 pointers to all the nodes traversed (breadcrumbs), the number of breadcrumbs left behind (max
                 of NUM_ROWS + 1), and the index of the key in the final breadcrumb, if the key was actually 
-                found (if it wasn't, index = -1).
+                found (if it wasn't, index < 0).
 
 
 *** Function details ***
