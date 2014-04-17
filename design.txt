@@ -80,7 +80,8 @@ private:
                 while n->children[n->size] == NULL && n->size < HASH_RANGE
 
         
-find_with_breadcrumbs: search for a desired key, keeping track of the nodes traversed.
+find_with_breadcrumbs: search for a desired key, keeping track of the nodes traversed. This is possibly
+the most important method in our data structure.
 Returns -2 if not found and the last node checked was a stem; -1 if not found and last node checked
 was a leaf. Returns (nonnegative) index if found. In insert, the two different negative values tell us
 whether we should insert into the last checked node (-1) or create a new branch node and insert into that (-2).
@@ -121,12 +122,56 @@ int MLH_insert(key, T v)
     T* value = new T(v) // copy T into static memory
     int index = find_with_breadcrumbs(...). Assuming that the node wasn't actually found, we now have the node
     at/after which we should put the new value
+
     if index == -1 // last node checked was leaf; put it in that node
         // insert key and value into the top node of the breadcrumbs array we received. increment its size.
         // expand if necessary (if size == HASH_RANGE)
-    if index == -2
+    else if index == -2
         // set children[hash] of the node at the top of breadcrumbs[] to new Node(). increment
         // corresponding widths[] value.
         // insert into the new child. Increment the parent's as well as the child's size
+    else return 0
     Update sizes for the remaining members of the stack (increment each's size by 1).
+
+void expand(Node* n, int level)
+    Node* child    
+    int new_children = 0
+    int hash;
+    for (int i = 0; i < HASH_RANGE; i++)
+        hash = ML_hash(level + 1, n->keys[i]        
+        child = n->children[hash]
+        if child == NULL
+            //allocate the child
+            new_children++            
+        //copy key and value to child
+    increment widths[] value according to level and new_children
+    if new_children == 1 // everything hashed to the same (now full) node
+        expand(n->children[hash], level + 1)
+
+int MLH_delete(key)
+    find_with_breadcrumbs(...)
+    if (index < 0)
+        return -1
+    Remove key and its corresponding value from the node, using the index returned by find_with_breadcrumbs
+    Be sure to delete the data attached to the key (it's in static memory)
+    Shift over keys and values in the node accordingly
+    Decrement size of node
+    If node empty, delete it--UNLESS IT'S THE ROOT NODE (decrement widths[] accordingly). Set children[]
+        pointer of parent to NULL.
+    Climb up the rest of the breadcrumbs[] stack, decrementing sizes as you go.
+    If at any time you decrement a node's size such that it's less than HASH_RANGE, collapse that node
+
+void collapse(Node* n, int level) // collapsing children into n
+    // for every non-null child of n
+        // copy keys and data to parent
+        // delete/deallocate that child NODE (not its data)
+    // keep track of # deleted children, decrement widths[] corresponding value by that amount
+    // set all of n's children[] pointers to NULL
+
+T MLH_get(int key)
+    int index = find_without_breadcrumbs(...)
+    if (index < 0)
+        return NULL
+    else
+        return *(breadcrumbs[num_breadcrumbs - 1]->pvalues[index])
 
