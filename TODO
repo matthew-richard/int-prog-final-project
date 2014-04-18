@@ -1,0 +1,8 @@
+switch to recursion
+
+expand only once it exceeds 5
+
+move some stuff to Node subclass (is_stem, copy(index, node))
+
+//some of our stuff looks through every single child of leaf when it only needs to look in
+    parent->size (just index_in?)
