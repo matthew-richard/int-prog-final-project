@@ -2,10 +2,11 @@
 #include "ML_hash.h"
 
 using std::cout;
+using std::endl;
 using std::ostream;
 
-const int HASH_RANGE = 5;
-const int NUM_ROWS = 8;
+const int HASH_RANGE = 5; // ML_hash returns 1-5
+const int NUM_ROWS = 8;   // ML_hash supports levels 1-8
 
 template <typename T>
 class MLH_Map {
@@ -23,40 +24,108 @@ class MLH_Map {
         int keys[HASH_RANGE];
         T* pvalues[HASH_RANGE];
         Node* children[HASH_RANGE];
-        int size; // # entries in leaf, or sum of sizes of immediate children in stem
+        int size; // # entries in leaf, or sum of sizes of immediate children in stem (aka
+                  // the number of actual entries contained in the subtree with this node
+                  // as the root)
+        
+        bool is_empty() const { return size == 0; }
+        bool is_stem() const { return size > HASH_RANGE; }
+        bool is_open() const { return size < HASH_RANGE; }
 
         int put(int key, T* pvalue) {
-            if (size >= HASH_RANGE)
-                return 0;
-
             keys[size] = key;
             pvalues[size] = pvalue;
             size++;
             return 1;
         }
+        int key_index(int key) const {
+            for (int i = 0; i < size; i++) {
+                if (key == keys[i])
+                    return i; 
+            }
+            return -1;
+        }
+
+        // returns 1 if just the entry was deleted;
+        // 2 if the whole node was deleted too
+        int delete_at_index(int index) {
+            delete pvalues[index]; // delete statically allocated data
+    
+            // replace entry being deleted by last entry in the node
+            if (index != size - 1) {
+                keys[index] = keys[size - 1];
+                pvalues[index] = pvalues[size - 1];
+            }
+            keys[size - 1] = -1;
+            size--;
+        }
+
+        // deletes node and any data and children attached to it.
+        // calling this on the root of a tree deletes the entire tree.
+        void subtree_destroy() {
+            if (is_stem()) {
+                for (int i = 0; i < HASH_RANGE; i++) {
+                    if (children[i] != NULL)
+                        children[i]->subtree_destroy();
+                }
+            } else {
+                for (int i = 0; i < size; i++) {
+                    delete pvalues[i];
+                }
+            }
+            delete this;
+        }
+
+        // print entries in leafs of subtree with this node as a root
+        ostream &print(ostream &output) const {
+            if (is_stem()) {
+                for (int i = 0; i < HASH_RANGE; i++) {
+                    if (children[i] != NULL)
+                        children[i]->print(output);
+                }
+            } else {
+                for (int i = 0; i < size; i++) {
+                    output << keys[i] << "\t: " << *pvalues[i] << endl;
+                }
+            }
+            return output;
+        }
     };
 
-    friend ostream &operator<<(ostream &output, MLH_Map &m) {//, const MLH_Map &m) {
-        output << "HI";
+    // print tree
+    friend ostream &operator<<(ostream &output, const MLH_Map &m) {
+        output << endl << "***** MLH_MAP *****" << endl;
+
+        output << "There are " << m.MLH_size() << " objects in the map." << endl
+               << "There are " << m.MLH_num_nodes() << " nodes in the tree." << endl
+               << "The tree is " << m.MLH_height() << " levels deep." << endl;
+        
+        if (m.print_entries) {
+            output << endl << "The key-value pairs are as follows:" << endl;
+            m.root->print(output);
+        }
+
+        output << endl << "*****---------*****" << endl;
         return output;
     }
 
 public:
-    MLH_Map() {
-        root = new Node();
-        print_entries = false;
+    MLH_Map()
+      : root (new Node()),
+        print_entries(false),
+        steps(0)
+    {
         widths[0] = 1;
         for(int i = 1; i <= NUM_ROWS; i++) {
             widths[i] = 0;
         }
-        steps = 0;
     }
 
     ~MLH_Map() {
-        
+        root->subtree_destroy();
     }
 
-    int MLH_height() {
+    int MLH_height() const {
         for (int i = NUM_ROWS; i >= 0; i--) {
             if (widths[i] != 0) {
                 return i;
@@ -64,8 +133,18 @@ public:
         }
     }
 
-    int MLH_size() {
-        return root->size;
+    int MLH_size() const { return root->size; }
+
+    int MLH_num_nodes() const {
+        int sum = 0;
+        for (int i = 0; i < NUM_ROWS; i++) {
+            sum += widths[i];
+        }
+        return sum;
+    }
+
+    bool MLH_get_print_option() const {
+        return print_entries;
     }
 
     void MLH_set_print_option(bool to) {
@@ -74,103 +153,33 @@ public:
 
     // 0 if failure, 1 if success. Inserts only if
     // key isn't already present.
-    int MLH_insert(int key, T v) {
-        T* pvalue = new T(v); // copy to static memory
-
-        Node* crumbs[NUM_ROWS + 1];
-        int num_crumbs;
-        int last_hash;
-        int index = find_with_breadcrumbs(key, (Node**)crumbs, &num_crumbs, &last_hash);
-
-        Node* top = crumbs[num_crumbs - 1];
-        if (index == -1) { // last node checked was a leaf; put in that node
-            top->put(key, pvalue);
-            if (top->size >= HASH_RANGE)
-                expand(top, num_crumbs - 1);
-        } else if (index == -2) { // ... was a stem; make child and put in there
-            Node* child = new Node();
-            top->children[last_hash] = child;
-            widths[num_crumbs]++;
-            child->put(key, pvalue);
-            (top->size)++;
-        } else {
-            return 0;
-        }
-
-        // Update sizes for the remaining members of the stack
-        for (int i = num_crumbs - 2; i >= 0; i--) {
-            (crumbs[i]->size)++;
-        }
+    int MLH_insert(int key, const T &v) {
+        return subtree_insert(root, 0, key, v);
     }
 
     // 0 if failure, 1 if success.
     int MLH_delete(int key) {
-        Node* crumbs[NUM_ROWS + 1];
-        int num_crumbs;
-        int last_hash;
-        int index = find_with_breadcrumbs(key, (Node**)crumbs, &num_crumbs, &last_hash);
-        Node* top = crumbs[num_crumbs - 1];
-
-        if (index < 0)
-            return -1;
-
-        delete top->pvalues[index]; // delete statically allocated data
-
-        // replace entry being deleted by the last entry in the node
-        if (index != top->size - 1) {
-            top->keys[index] = top->keys[top->size - 1];
-            top->pvalues[index] = top->pvalues[top->size - 1];
-        }
-        top->keys[top->size - 1] = -1; 
-        (top->size)--;
-
-        if (top->size == 0 && top != root) {
-            delete top;
-            widths[num_crumbs - 1]--;
-            crumbs[num_crumbs - 2]->children[last_hash] = NULL;
-        }
-
-        for (int i = num_crumbs - 2; i >= 0; i--) {
-            (crumbs[i]->size)--;
-            if (crumbs[i]->size < HASH_RANGE) {
-                collapse(crumbs[i], i);
-            }
-        }
+        return subtree_delete(root, 0, key); 
     }
 
-    // NULL if not found.
-    int MLH_get(int key, T* out) {
-        Node* crumbs[NUM_ROWS + 1];
-        int num_crumbs;
-        int last_hash;
-        int index = find_with_breadcrumbs(key, (Node**)crumbs, &num_crumbs, &last_hash);
-
-        if (index < 0) {
+    // 1 if found, 0 if not.
+    int MLH_get(int key, T* out) const {
+        T* result = subtree_get(root, 0, key);
+        if (result == NULL) {
             return 0;
         } else {
-            *out = *(crumbs[num_crumbs - 1]->pvalues[index]);
+            *out = *result;
             return 1;
         }
     }
 
 private:
-    Node* root;
+    Node* const root;
     bool print_entries;
     int widths[NUM_ROWS + 1]; // # hash nodes in each row (widths[0] always = 1)
     int steps; // effort spent
-
-    bool is_stem(Node* n) {
-        return n->size >= HASH_RANGE;
-    }
     
-    int key_index_in(int key, Node* n) {
-        for (int i = 0; i < n->size; i++) {
-            if (key == n->keys[i])
-                return i; 
-        }
-        return -1;
-    }
-
+    // aka explode
     void expand(Node* n, int level) {
         int new_children = 0;
         int hash;
@@ -183,8 +192,6 @@ private:
             n->children[hash]->put(n->keys[i], n->pvalues[i]);
         }
         widths[level + 1] += new_children;
-        if (new_children == 1)
-            expand(n->children[hash], level + 1);
     }
 
     void collapse(Node* n, int level) {
@@ -198,11 +205,8 @@ private:
             n->children[i] = NULL;
 
             // copy keys and pvalues to parent
-            for (int j = 0; j < child->size; j++) {
-                n->keys[n->size] = child->keys[j];
-                n->pvalues[n->size] = child->pvalues[j];
-                n->size++;
-            }
+            for (int j = 0; j < child->size; j++)
+                n->put(child->keys[j], child->pvalues[j]);
 
             delete child;
             deleted_children++;
@@ -210,27 +214,92 @@ private:
         widths[level + 1] -= deleted_children;
     }
 
-    int find_with_breadcrumbs(int key, Node** crumbs, int* num_crumbs, int* hash) {
-        Node* n;
-        Node* child = root;
-        *num_crumbs = 0; // num_crumbs - 1 = current level
-        int index = -2; // 'index' defaults to "left off at stem" signal
+    // 0 if failure, 1 if success
+    int subtree_insert(Node* n, int level, int key, const T &v) {
+        int result;
+        int hash = ML_hash(level + 1, key) - 1;
+        Node* child = n->children[hash];
+        if (!n->is_stem()) {
+            if (n->is_open()) {
+                if (n->key_index(key) >= 0)
+                    return 0;
 
-        do {
-            n = child;
-
-            crumbs[*num_crumbs] = n;
-            (*num_crumbs)++;
-
-            if(!is_stem(n)) {
-                index = key_index_in(key, n);
-                break;
+                T* pvalue = new T(v); // copy to static memory
+                n->put(key, pvalue);
+                return 1;
+            } else {
+                // expand (explode) unavailable leaves
+                expand(n, level);
+                child = n->children[hash];
+                // force child if still missing
+                if (child == NULL) {
+                    child = new Node();
+                    n->children[hash] = child;
+                    widths[level + 1]++;
+                }
             }
+        } else if (child == NULL) { // force child if missing from stem
+            child = new Node();
+            n->children[hash] = child;
+            widths[level + 1]++;
+        }
+        
+        if(result = subtree_insert(child, level + 1, key, v))
+            (n->size)++;
+        return result;
+    }
 
-            *hash = ML_hash(*num_crumbs, key) - 1;
-            child = n->children[*hash];
-        } while (child != NULL);
+    // 0 if failure, 1 if success (2 if success and 'n' was deleted)
+    int subtree_delete(Node* n, int level, int key) {
+        int result;
+        int hash = ML_hash(level + 1, key) - 1;
+        Node* child = n->children[hash];
+        if (!n->is_stem()) {
+            int index = n->key_index(key);
+            if (index < 0)
+                return 0;
 
-        return index;
+            n->delete_at_index(index);
+            if (n->is_empty() && n != root) {
+                delete n;
+                widths[level]--;
+                return 2;
+            } else return 1;
+        } else if (child == NULL) {
+            return 0;
+        }
+        
+        result = subtree_delete(child, level + 1, key);
+        
+        // check if child was deleted
+        if (result == 2) {
+            n->children[hash] = NULL;
+            result = 1;
+        }
+
+        // update size. collapse if needed
+        if (result > 0) {
+            (n->size)--;
+            if (n->size <= HASH_RANGE) {
+                collapse(n, level);
+            }
+        }
+        return result;
+    }
+
+    // 0 if failure, 1 if success
+    T* subtree_get(Node* n, int level, int key) const {
+        int hash = ML_hash(level + 1, key) - 1;
+        Node* child = n->children[hash];
+        if (!n->is_stem()) {
+            int index = n->key_index(key); 
+            if (index < 0)
+                return NULL;
+            else return n->pvalues[index];
+        } else if (child == NULL) {
+            return NULL;
+        }
+        
+        return subtree_get(child, level + 1, key);
     }
 };
