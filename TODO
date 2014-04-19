@@ -7,7 +7,7 @@
 //some of our stuff looks through every single child of leaf when it only needs to look in
     parent->size (just index_in?)
 
-separate declarations and definitions (but in same file (?))
+//separate declarations and definitions (but in same file (?))
 
 // keep track of steps
 

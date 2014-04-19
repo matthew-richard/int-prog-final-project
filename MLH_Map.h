@@ -22,9 +22,9 @@ class MLH_Map {
                   // the number of actual entries contained in the subtree with this node
                   // as the root)
         
-        bool is_empty(); 
-        bool is_stem();
-        bool is_open();
+        bool is_empty() const; 
+        bool is_stem() const;
+        bool is_open() const;
 
         int put(int key, T* pvalue);
         int key_index(int key) const;
@@ -40,8 +40,8 @@ class MLH_Map {
     };
 
     // print tree
-    template <typename T>
-    friend ostream &operator<<(ostream &output, const MLH_Map &m);
+    template <typename U>
+    friend ostream &operator<<(ostream &output, const MLH_Map< U > &m);
 
 public:
     MLH_Map();
@@ -73,3 +73,5 @@ private:
     T* subtree_get(Node* n, int level, int key);
 };
 
+#include "MLH_Map_Node.cpp"
+#include "MLH_Map.cpp"
