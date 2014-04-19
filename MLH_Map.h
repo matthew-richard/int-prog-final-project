@@ -163,7 +163,7 @@ public:
     }
 
     // 1 if found, 0 if not.
-    int MLH_get(int key, T* out) const {
+    int MLH_get(int key, T* out) {
         T* result = subtree_get(root, 0, key);
         if (result == NULL) {
             return 0;
@@ -184,7 +184,7 @@ private:
         int new_children = 0;
         int hash;
         for (int i = 0; i < HASH_RANGE; i++) {
-            hash = ML_hash(level + 1, n->keys[i]) - 1;
+            hash = ML_hash(level + 1, n->keys[i]) - 1; steps++;
             if (n->children[hash] == NULL) {
                 n->children[hash] = new Node();
                 new_children++;
@@ -199,7 +199,7 @@ private:
         int deleted_children = 0;
         n->size = 0;
         for (int i = 0; i < HASH_RANGE; i++) {
-            child = n->children[i];
+            child = n->children[i]; steps++;
             if (child == NULL)
                 continue;
             n->children[i] = NULL;
@@ -218,7 +218,7 @@ private:
     int subtree_insert(Node* n, int level, int key, const T &v) {
         int result;
         int hash = ML_hash(level + 1, key) - 1;
-        Node* child = n->children[hash];
+        Node* child = n->children[hash]; steps++;
         if (!n->is_stem()) {
             if (n->is_open()) {
                 if (n->key_index(key) >= 0)
@@ -230,17 +230,17 @@ private:
             } else {
                 // expand (explode) unavailable leaves
                 expand(n, level);
-                child = n->children[hash];
+                child = n->children[hash]; steps++;
                 // force child if still missing
                 if (child == NULL) {
                     child = new Node();
-                    n->children[hash] = child;
+                    n->children[hash] = child; steps++;
                     widths[level + 1]++;
                 }
             }
         } else if (child == NULL) { // force child if missing from stem
             child = new Node();
-            n->children[hash] = child;
+            n->children[hash] = child; steps++;
             widths[level + 1]++;
         }
         
@@ -253,7 +253,7 @@ private:
     int subtree_delete(Node* n, int level, int key) {
         int result;
         int hash = ML_hash(level + 1, key) - 1;
-        Node* child = n->children[hash];
+        Node* child = n->children[hash]; steps++;
         if (!n->is_stem()) {
             int index = n->key_index(key);
             if (index < 0)
@@ -288,9 +288,9 @@ private:
     }
 
     // 0 if failure, 1 if success
-    T* subtree_get(Node* n, int level, int key) const {
+    T* subtree_get(Node* n, int level, int key) {
         int hash = ML_hash(level + 1, key) - 1;
-        Node* child = n->children[hash];
+        Node* child = n->children[hash]; steps++;
         if (!n->is_stem()) {
             int index = n->key_index(key); 
             if (index < 0)

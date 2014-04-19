@@ -9,7 +9,7 @@
 
 separate declarations and definitions (but in same file (?))
 
-keep track of steps
+// keep track of steps
 
 //write destructor
 
