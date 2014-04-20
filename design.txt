@@ -52,12 +52,15 @@ private:
     void expand(Node* n, int level) <-- expands a full node by rehashing into children.
     void collapse(Node* n, int level) <-- collapses into an available parent by rehashing into parent. 
 
-    // our recursive helper methods to the main MLH operations (insert, delete, get). Insert, delete, and get
+    // Our recursive helper methods to the main MLH operations (insert, delete, get). Insert, delete, and get
     // values in the subtree whose root is 'n'. Don't forget to copy the passed-in T value to static memory
-    // in subtree_insert. 
-    int subtree_insert(Node* n, int key, T &v)
-    int subtree_delete(Node* n, int key)
-    T* subtree_get(Node* n, int key)
+    // in subtree_insert.
+    //
+    // In order to conserve memory, we did not put a 'level' field in Node -- as a result, the level of a node
+    // must be passed by parameter into the subtree_insert, delete, and get functions.
+    int subtree_insert(Node* n, int level, int key, T &v)
+    int subtree_delete(Node* n, int level, int key)
+    T* subtree_get(Node* n, int level, int key)
 
 
 *** Function details ***
