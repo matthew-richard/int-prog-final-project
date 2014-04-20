@@ -22,3 +22,5 @@
 somehow work around get returning via reference parameter?
 
 -/-rearrage ifs in insert
+
+move subtree_ functions into Node
