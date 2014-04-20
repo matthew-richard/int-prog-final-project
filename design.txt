@@ -20,6 +20,11 @@ class MLH_Map
         T* pvalues[HASH_RANGE]
         Node* children[HASH_RANGE]
         int size    <-- if leaf, # of entries in this node, else the sum of the sizes of its children
+        
+        void hard_destroy() <--calls 'delete' not only on this node, but on all the children and data pointed to by
+                          this node.
+        
+        // helper methods
     
 public:
     MLH_Map() <-- allocates root node, widths[0] = 1
@@ -45,93 +50,22 @@ private:
     void expand(Node* n, int level) <-- expands a full node by rehashing into children.
     void collapse(Node* n, int level) <-- collapses into an available parent by rehashing into parent. 
 
-    int find_with_breadcrumbs(int key, Node** breadcrumbs, int* num_breadcrumbs) <-- helper method for main
-                MLH ops (insert, delete, get). What we use to traverse the tree in search of a key. Returns
-                pointers to all the nodes traversed (breadcrumbs), the number of breadcrumbs left behind (max
-                of NUM_ROWS + 1), and the index of the key in the final breadcrumb, if the key was actually 
-                found (if it wasn't, index < 0).
+    // our recursive helper methods to the main MLH operations (insert, delete, get). Insert, delete, and get
+    // values in the subtree whose root is 'n'. Don't forget to copy the passed-in T value to static memory
+    // in subtree_insert. 
+    int subtree_insert(Node* n, int key, T &v)
+    int subtree_delete(Node* n, int key)
+    T* subtree_get(Node* n, int key)
 
 
 *** Function details ***
 ~MLH_Map: deleting all nodes.
-    Node* n    
-    Node* stack[NUM_ROWS + 1]
-    int stack_size = 1;
+    Call root->hard_destroy().
 
-    stack[0] = root;
-    root->size = 0; // repurpose Node's 'size' as the next child index to check
-    
-    while(stack_size != 0)
-        n = stack[stack_size - 1]        
-        if (n->size == HASH_RANGE) // finished deleting children: delete node, move up stack
-            stack_size--
-            delete n
-        else if (n->size < HASH_RANGE) // move to next child. delete (w/ data) if leaf, otherwise add it to stack
-            Node* child = n->children[n->size]
-            if (!is_stem(child))
-                for (int i = 0; i < HASH_RANGE; i++)
-                    delete child->pvalues[i]
-                delete child
-            else
-                stack[stack_size] = child
-                child->size = 0                
-                do
-                    n->size++
-                while n->children[n->size] == NULL && n->size < HASH_RANGE
-
+Node::hard_destroy()
+    If stem, call hard_destroy() on all non-null children.
+    If leaf, delete at all data pointers, then delete the node itself.
         
-find_with_breadcrumbs: search for a desired key, keeping track of the nodes traversed. This is possibly
-the most important method in our data structure.
-Returns -2 if not found and the last node checked was a stem; -1 if not found and last node checked
-was a leaf. Returns (nonnegative) index if found. In insert, the two different negative values tell us
-whether we should insert into the last checked node (-1) or create a new branch node and insert into that (-2).
-Returning the last-computed hash value allows us to be efficient and reuse it in the calling function in the
--2 case.
-int find_with_breadcrumbs(int key, Node** breadcrumbs, int* num_breadcrumbs, int* hash)
-    Node* n;
-    int h;
-    Node* child = root;
-    Node* crumbs[NUM_ROWS + 1]
-    int num_crumbs = 0 // also num levels
-    int index = -2
-
-    do
-        n = child;        
-                
-        crumbs[num_crumbs] = n;        
-        num_crumbs++
-        
-        if(!is_stem(n))
-            index = index_in(key, n->keys)
-            break
-
-        h = ML_hash(num_crumbs, key)
-        child = n->children[h]
-    while child != NULL
-
-    *hash = h;
-    *breadcrumbs = crumbs;
-    *num_breadcrumbs = num_crumbs;
-    return index;
-
-
-int MLH_insert(key, T v)
-    Node* breadcrumbs[NUM_ROWS + 1]
-    int num_breadcrumbs
-    int hash    
-    T* value = new T(v) // copy T into static memory
-    int index = find_with_breadcrumbs(...). Assuming that the node wasn't actually found, we now have the node
-    at/after which we should put the new value
-
-    if index == -1 // last node checked was leaf; put it in that node
-        // insert key and value into the top node of the breadcrumbs array we received. increment its size.
-        // expand if necessary (if size == HASH_RANGE)
-    else if index == -2
-        // set children[hash] of the node at the top of breadcrumbs[] to new Node(). increment
-        // corresponding widths[] value.
-        // insert into the new child. Increment the parent's as well as the child's size
-    else return 0
-    Update sizes for the remaining members of the stack (increment each's size by 1).
 
 void expand(Node* n, int level)
     Node* child    
@@ -145,21 +79,28 @@ void expand(Node* n, int level)
             new_children++            
         //copy key and value to child
     increment widths[] value according to level and new_children
-    if new_children == 1 // everything hashed to the same (now full) node
-        expand(n->children[hash], level + 1)
 
 int MLH_delete(key)
-    find_with_breadcrumbs(...)
-    if (index < 0)
-        return -1
-    Remove key and its corresponding value from the node, using the index returned by find_with_breadcrumbs
-    Be sure to delete the data attached to the key (it's in static memory)
-    Shift over keys and values in the node accordingly
-    Decrement size of node
-    If node empty, delete it--UNLESS IT'S THE ROOT NODE (decrement widths[] accordingly). Set children[]
-        pointer of parent to NULL.
-    Climb up the rest of the breadcrumbs[] stack, decrementing sizes as you go.
-    If at any time you decrement a node's size such that it's less than HASH_RANGE, collapse that node
+    subtree_delete @ root.
+int MLH_insert
+    subtree_insert @ root.
+int MLH_get
+    subtree_get @ root.
+    
+subtree_delete
+    If leaf (size <= HASH_RANGE),
+        If desired key is in this node, remove the key and its value.
+            Be sure to delete the data attached to the key (it's in static memory)
+            To keep all values to the left of the node's array, take the last value and put it in the index we just deleted
+            Decrement size of node
+            If node empty, delete it--UNLESS IT'S THE ROOT NODE (decrement widths[] accordingly). Set children[]
+                pointer of parent to NULL.
+        If desired key is not in this node, return error.
+    If stem,
+        Call subtree_delete on the appropriate child (determined by hash function)--unless that child doesn't exist,
+            in which case return error.
+        Decrement size if the above call indicates that a deletion occurred.
+            If size is now < HASH_RANGE, collapse.
 
 void collapse(Node* n, int level) // collapsing children into n
     // for every non-null child of n
@@ -168,10 +109,4 @@ void collapse(Node* n, int level) // collapsing children into n
     // keep track of # deleted children, decrement widths[] corresponding value by that amount
     // set all of n's children[] pointers to NULL
 
-T MLH_get(int key)
-    int index = find_without_breadcrumbs(...)
-    if (index < 0)
-        return NULL
-    else
-        return *(breadcrumbs[num_breadcrumbs - 1]->pvalues[index])
 
