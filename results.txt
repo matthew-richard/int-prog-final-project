@@ -1,7 +1,25 @@
 Matthew Richard
 mricha56@jhu.edu
 
+***** 2 *****
 
+SEED    c       d
+1       6157409 73980567
+2       6146316 73970615
+3       6148807 73978958
+4       6146349 73995080
+5       6145961 74007820
+6       6150519 73990401
+7       6153705 73970742
+8       6152056 73988084
+9       6153489 73977682
+10      6151682 73972775
+------------------------
+AVG     6150629 73983272
+
+This is significantly faster than any previous linked list, queue, or any other node-based
+data structure we've implemented in this class. The step count never even overflows out of
+an int; a long was never required.
 
 
 Complete results for 1a - 1d are provided below:
