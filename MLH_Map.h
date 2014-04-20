@@ -50,6 +50,7 @@ public:
     int MLH_height() const;
     int MLH_size() const;
     int MLH_num_nodes() const;
+    int MLH_steps() const;
 
     bool MLH_get_print_option() const;
     void MLH_set_print_option(bool to);

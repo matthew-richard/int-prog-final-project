@@ -63,7 +63,7 @@ private:
     T* subtree_get(Node* n, int level, int key)
 
 
-*** Function details ***
+*** Function details *** (definitions for Node in MLH_Map_Node.cpp, for MLH_Map in MLH_Map.cpp)
 Node::print()
     if stem, print() for every non-null child.
     if leaf, print key-value pairs.

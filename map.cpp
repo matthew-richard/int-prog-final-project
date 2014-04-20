@@ -13,18 +13,20 @@ int main() {
     m.MLH_insert(4, 40);
     m.MLH_insert(5, 50);
     m.MLH_insert(6, 60);*/
-    m.MLH_insert(5, 50);
-    m.MLH_insert(10,1000);
-    m.MLH_insert(15,1500);
-    m.MLH_insert(20,2000);
-    m.MLH_insert(25,2500);
-    m.MLH_insert(30,3000);
+    m.MLH_insert(6, 50);
+    m.MLH_insert(11,1000);
+    m.MLH_insert(16,1500);
+    m.MLH_insert(21,2000);
+    m.MLH_insert(26,2500);
+    m.MLH_insert(31,3000);
+    m.MLH_insert(36,3600);
+    m.MLH_insert(41,4100);
 
     m.MLH_set_print_option(true);
 
     cout << m;
 
-    cout << m.MLH_height();
+    /* cout << m.MLH_height();
 
     m.MLH_delete(25);
     
@@ -34,5 +36,5 @@ int main() {
     m.MLH_delete(2);
     int b = m.MLH_get(25, &g);
     b = m.MLH_get(1, &g);
-    cout;
+    cout; */
 }

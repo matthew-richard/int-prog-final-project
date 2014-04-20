@@ -55,6 +55,9 @@ int MLH_Map< T >::MLH_num_nodes() const {
 }
 
 template <typename T>
+int MLH_Map< T >::MLH_steps() const { return steps; }
+
+template <typename T>
 bool MLH_Map< T >::MLH_get_print_option() const {
     return print_entries;
 }
@@ -130,13 +133,15 @@ void MLH_Map< T >::collapse(Node* n, int level) {
 template <typename T>
 int MLH_Map< T >::subtree_insert(Node* n, int level, int key, const T &v) {
     int result;
-    int hash = ML_hash(level + 1, key) - 1;
+    int hash = 0;
+    if (level < NUM_ROWS)
+        hash = ML_hash(level + 1, key) - 1;
     Node* child = n->children[hash]; steps++;
     if (!n->is_stem()) {
-        if (n->is_open()) {
-            if (n->key_index(key) >= 0)
-                return 0;
+        if (n->key_index(key) >= 0)
+            return 0;
 
+        if (n->is_open()) {
             T* pvalue = new T(v); // copy to static memory
             n->put(key, pvalue);
             return 1;
@@ -166,7 +171,9 @@ int MLH_Map< T >::subtree_insert(Node* n, int level, int key, const T &v) {
 template <typename T>
 int MLH_Map< T >::subtree_delete(Node* n, int level, int key) {
     int result;
-    int hash = ML_hash(level + 1, key) - 1;
+    int hash = 0;
+    if (level < NUM_ROWS)
+        hash = ML_hash(level + 1, key) - 1;
     Node* child = n->children[hash]; steps++;
     if (!n->is_stem()) {
         int index = n->key_index(key);
@@ -204,7 +211,9 @@ int MLH_Map< T >::subtree_delete(Node* n, int level, int key) {
 // 0 if failure, 1 if success
 template <typename T>
 T* MLH_Map< T >::subtree_get(Node* n, int level, int key) {
-    int hash = ML_hash(level + 1, key) - 1;
+    int hash = 0;
+    if (level < NUM_ROWS)
+        hash = ML_hash(level + 1, key) - 1;
     Node* child = n->children[hash]; steps++;
     if (!n->is_stem()) {
         int index = n->key_index(key); 
