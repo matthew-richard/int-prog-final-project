@@ -23,6 +23,7 @@ class MLH_Map
         
         void hard_destroy() <--calls 'delete' not only on this node, but on all the children and data pointed to by
                           this node.
+        void print() <-- prints keys and values in leafs of subtree with this node as root
         
         // helper methods
     
@@ -31,6 +32,7 @@ public:
     ~MLH_Map() <-- deletes all nodes, recursively
 
     int MLH_height() <-- starts from the highest widths[] index and returns first w/ nonzero entry
+    int MLH_num_nodes() <-- returns sum of widths[]
     int MLH_size() <-- returns size value of root node
     ostream &operator<<(ostream &output, const MLH_Map &m) <-- overload print
     void MLH_set_print_option(bool to) <-- determines whether to print keys and objects
@@ -59,6 +61,15 @@ private:
 
 
 *** Function details ***
+Node::print()
+    if stem, print() for every non-null child.
+    if leaf, print key-value pairs.
+
+printing tree (overload <<)
+    print MLH_height(), num_nodes(), size().
+    if print_entries
+        call root->print
+
 ~MLH_Map: deleting all nodes.
     Call root->hard_destroy().
 
@@ -89,7 +100,7 @@ int MLH_get
     
 subtree_delete
     If leaf (size <= HASH_RANGE),
-        If desired key is in this node, remove the key and its value.
+        If desired key is in this node, remove the key and its value. return 1.
             Be sure to delete the data attached to the key (it's in static memory)
             To keep all values to the left of the node's array, take the last value and put it in the index we just deleted
             Decrement size of node
@@ -101,6 +112,20 @@ subtree_delete
             in which case return error.
         Decrement size if the above call indicates that a deletion occurred.
             If size is now < HASH_RANGE, collapse.
+            
+subtree_get
+    Traverse until leaf, exactly the same as in subtree_delete. Return errors in the same cases as subtree_delete.
+    But if desired key is discovered in leaf node, return the data attached to the key.
+    
+subtree_insert
+    Similar traversal to subtree_delete and subtree_get. Return error when key being inserted is already in tree.
+    Upon reaching a leaf (and key isn't already in it):
+        If there's space, insert into the leaf. return 1.
+        Otherwise, expand (explode) the leaf. Attempt to insert into the appropriate child:
+            If the appropriate child (determined by hash function) already exists, insert into it.
+            Else, create the child and call subtree_insert on it.
+    Increment the size of this node if an insertion was made into it or into one of its children (we'll know this
+        by the return value of one of the above subtree_insert calls).
 
 void collapse(Node* n, int level) // collapsing children into n
     // for every non-null child of n
