@@ -1,3 +1,5 @@
+/* MLH_Map's Node subclass definitions */
+
 template <typename T>
 MLH_Map< T >::Node::Node() {
     for (int i = 0; i < HASH_RANGE; i++) {
@@ -46,35 +48,3 @@ int MLH_Map< T >::Node::delete_at_index(int index) {
     size--;
 }
 
-// deletes node and any data and children attached to it.
-// calling this on the root of a tree deletes the entire tree.
-template <typename T>
-void MLH_Map< T >::Node::subtree_destroy() {
-    if (is_stem()) {
-        for (int i = 0; i < HASH_RANGE; i++) {
-            if (children[i] != NULL)
-                children[i]->subtree_destroy();
-        }
-    } else {
-        for (int i = 0; i < size; i++) {
-            delete pvalues[i];
-        }
-    }
-    delete this;
-}
-
-// print entries in leafs of subtree with this node as a root
-template <typename T>
-ostream& MLH_Map< T >::Node::print(ostream &output) const {
-    if (is_stem()) {
-        for (int i = 0; i < HASH_RANGE; i++) {
-            if (children[i] != NULL)
-                children[i]->print(output);
-        }
-    } else {
-        for (int i = 0; i < size; i++) {
-            output << keys[i] << "\t: " << *pvalues[i] << endl;
-        }
-    }
-    return output;
-}

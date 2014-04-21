@@ -1,3 +1,5 @@
+/* MLH_Map definitions */
+
 // print tree
 template <typename T>
 ostream &operator<<(ostream &output, const MLH_Map< T > &m) {
@@ -9,7 +11,7 @@ ostream &operator<<(ostream &output, const MLH_Map< T > &m) {
     
     if (m.print_entries) {
         output << endl << "The key-value pairs are as follows:" << endl;
-        m.root->print(output);
+        m.subtree_print(output, m.root);
     }
 
     output << "*****---------*****" << endl;
@@ -29,9 +31,7 @@ MLH_Map< T >::MLH_Map()
 }
 
 template <typename T>
-MLH_Map< T >::~MLH_Map() {
-    root->subtree_destroy();
-}
+MLH_Map< T >::~MLH_Map() { subtree_destroy(root); }
 
 template <typename T>
 int MLH_Map< T >::MLH_height() const {
@@ -58,27 +58,19 @@ template <typename T>
 int MLH_Map< T >::MLH_steps() const { return steps; }
 
 template <typename T>
-bool MLH_Map< T >::MLH_get_print_option() const {
-    return print_entries;
-}
+bool MLH_Map< T >::MLH_get_print_option() const { return print_entries; }
 
 template <typename T>
-void MLH_Map< T >::MLH_set_print_option(bool to) {
-    print_entries = to;
-}
+void MLH_Map< T >::MLH_set_print_option(bool to) { print_entries = to; }
 
 // 0 if failure, 1 if success. Inserts only if
 // key isn't already present.
 template <typename T>
-int MLH_Map< T >::MLH_insert(int key, const T &v) {
-    return subtree_insert(root, 0, key, v);
-}
+int MLH_Map< T >::MLH_insert(int key, const T &v) { return subtree_insert(root, 0, key, v); }
 
 // 0 if failure, 1 if success.
 template <typename T>
-int MLH_Map< T >::MLH_delete(int key) {
-    return subtree_delete(root, 0, key); 
-}
+int MLH_Map< T >::MLH_delete(int key) { return subtree_delete(root, 0, key); }
 
 // 1 if found, 0 if not.
 template <typename T>
@@ -225,4 +217,37 @@ T* MLH_Map< T >::subtree_get(Node* n, int level, int key) {
     }
     
     return subtree_get(child, level + 1, key);
+}
+
+// deletes node and any data and children attached to it.
+// calling this on the root of a tree deletes the entire tree.
+template <typename T>
+void MLH_Map< T >::subtree_destroy(Node* n) {
+    if (n->is_stem()) {
+        for (int i = 0; i < HASH_RANGE; i++) {
+            if (n->children[i] != NULL)
+                subtree_destroy(n->children[i]);
+        }
+    } else {
+        for (int i = 0; i < n->size; i++) {
+            delete n->pvalues[i];
+        }
+    }
+    delete n;
+}
+
+// print entries in leafs of subtree with this node as a root
+template <typename T>
+ostream& MLH_Map< T >::subtree_print(ostream &output, Node* n) const {
+    if (n->is_stem()) {
+        for (int i = 0; i < HASH_RANGE; i++) {
+            if (n->children[i] != NULL)
+                subtree_print(output, n->children[i]);
+        }
+    } else {
+        for (int i = 0; i < n->size; i++) {
+            output << n->keys[i] << "\t: " << *(n->pvalues[i]) << endl;
+        }
+    }
+    return output;
 }

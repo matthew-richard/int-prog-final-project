@@ -31,12 +31,6 @@ class MLH_Map {
 
         int delete_at_index(int index);
 
-        // deletes node and any data and children it points at.
-        // calling this on the root of a tree deletes the entire tree.
-        void subtree_destroy();
-
-        // print entries in leafs of subtree with this node as a root
-        ostream &print(ostream &output) const;
     };
 
     // print tree
@@ -72,6 +66,8 @@ private:
     int subtree_insert(Node* n, int level, int key, const T &v);
     int subtree_delete(Node* n, int level, int key);
     T* subtree_get(Node* n, int level, int key);
+    void subtree_destroy(Node* n);
+    ostream &subtree_print(ostream &output, Node* n) const;
 };
 
 #include "MLH_Map_Node.cpp"
