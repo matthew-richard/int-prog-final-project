@@ -1,3 +1,12 @@
+---------- PART 2 ----------
+
+//Stop accepting negative input
+
+//factor into acceptInRange(int lo, int hi) and acceptPositive(&int, string)
+
+
+---------- PART 1 ----------
+
 //switch to recursion
 
 //expand only once it exceeds 5
@@ -23,4 +32,7 @@ somehow work around get returning via reference parameter?
 
 -/-rearrage ifs in insert
 
-move subtree_ functions into Node
+//move subtree_ functions into Node
+
+it's apparently inefficient that we treat each action after explosion as an insert.
+

@@ -41,13 +41,12 @@ int main(int argc, char** argv) {
     for (int i = 1; i <= ops; i++) {
         int key;
         char op;
-        int out;
         r.Randomize_next_op();
         key = r.Get_key();
         op = r.Get_op();
         switch(op) {
             case 'G':
-                m.MLH_get(key, &out);
+                m.MLH_get(key);
                 num_gets++;
                 break;
             case 'D':

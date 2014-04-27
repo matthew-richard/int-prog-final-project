@@ -49,9 +49,9 @@ public:
     bool MLH_get_print_option() const;
     void MLH_set_print_option(bool to);
 
-    int MLH_insert(int key, const T &v);
+    T* MLH_insert(int key, const T &v);
     int MLH_delete(int key);
-    int MLH_get(int key, T* out);
+    T* MLH_get(int key);
 
 private:
     Node* const root;
@@ -62,8 +62,8 @@ private:
     void expand(Node* n, int level); // aka explode
     void collapse(Node* n, int level);
 
-    // 0 if failure, 1 if success
-    int subtree_insert(Node* n, int level, int key, const T &v);
+    // NULL if failure
+    T* subtree_insert(Node* n, int level, int key, const T &v);
     int subtree_delete(Node* n, int level, int key);
     T* subtree_get(Node* n, int level, int key);
     void subtree_destroy(Node* n);
