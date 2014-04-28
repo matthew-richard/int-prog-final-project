@@ -53,6 +53,8 @@ public:
     int MLH_delete(int key);
     T* MLH_get(int key);
 
+    void raw_print();
+
 private:
     Node* const root;
     bool print_entries;

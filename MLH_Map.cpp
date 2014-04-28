@@ -6,7 +6,7 @@ ostream &operator<<(ostream &output, const MLH_Map< T > &m) {
     output << endl << "***** MLH_MAP *****" << endl;
 
     output << "There are " << m.MLH_size() << " objects in the map." << endl
-           << "There are " << m.MLH_num_nodes() << " nodes in the tree." << endl
+           << "There are " << m.MLH_num_nodes() << " nodes in the map's tree." << endl
            << "The tree is " << m.MLH_height() << " levels deep." << endl;
     
     if (m.print_entries) {
@@ -17,6 +17,9 @@ ostream &operator<<(ostream &output, const MLH_Map< T > &m) {
     output << "*****---------*****" << endl;
     return output;
 }
+
+template <typename T>
+void MLH_Map<T>::raw_print() { subtree_print(cout, root); }
 
 template <typename T>
 MLH_Map< T >::MLH_Map()

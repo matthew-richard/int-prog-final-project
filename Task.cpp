@@ -55,7 +55,6 @@ ostream& operator<<(ostream& out, Task t) {
     out << "name: " << t.name
         << " / parts cost: $" << t.parts_cost
         << " / labor cost: $" << t.labor_cost
-        << " / *total cost*: $" << t.parts_cost + t.labor_cost
-        << endl;
+        << " / *total cost*: $" << t.parts_cost + t.labor_cost;
     return out;
 }

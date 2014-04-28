@@ -13,7 +13,7 @@ using std::ostream;
 class Task {
 friend ostream& operator<<(ostream& out, Task t);
 public:
-    Task(string n, double p_c, double l_c)
+    Task(string n = "", double p_c = 0, double l_c = 0)
       : name(n), parts_cost(p_c), labor_cost(l_c) {}
 
     static const Task MAINTENANCE;
