@@ -35,7 +35,7 @@ Car Car::menu_constructor() {
 
 ostream& Car::print(ostream& out) const {
     out << (Vehicle) *this
-        << "/ engine size: " << engine_size << "cc"
+        << "/ engine size: " << engine_size << " cc"
         << " / gas type: " << gas_type
         << " / engine pollution: " << engine_pollution << "%"
         << endl;

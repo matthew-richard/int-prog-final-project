@@ -8,17 +8,22 @@
 #include "Bus.h"
 
 
-Record* VehicleServiceCenter::add_vehicle(Vehicle * const v, const string type) {
-    Record* ins = new Record(v, type);
-    int result = records.MLH_insert(v->id, ins); 
-    if (!result) {
-        cout << "Error: There's already a vehicle with that id"
-             << " in the service center!" << endl;
-        ins = NULL;
-    } else {
-        cout << type << " with id " << v->id << " successfully"
-             << " arrived at service center." << endl;
+Record* VehicleServiceCenter::add_vehicle(Vehicle * const v) {
+    Record* ins = new Record(v);
+    int id = 0;
+    int result = 0;
+    while (!result) {
+        id = read_id();
+        result = records.MLH_insert(id, ins); 
+        if (!result) {
+            cout << "Error: There's already a vehicle with that id"
+                 << " in the service center! Please reenter." << endl;
+        }
     }
+
+    cout << v->get_type() << " with id " << id << " successfully"
+         << " arrived at service center." << endl;
+
     return ins;
 }
 
@@ -28,7 +33,7 @@ bool VehicleServiceCenter::print_vehicle(const int id) const {
         cout << "Error: Couldn't find vehicle with id " << id << "!";
         return false;
     }
-    cout << r->type << " with id " << id << " is as follows:" << endl
+    cout << r->v->get_type() << " with id " << id << " is as follows:" << endl
          << *r
          << endl;
     return true;
@@ -42,7 +47,9 @@ void VehicleServiceCenter::print_vehicles() const {
 
     cout << endl
          << "The " << records.MLH_size() << " vehicles in the service"
-         << " center are as follows:" << endl << endl;
+         << " center are as follows:"
+         << endl << endl
+         << "ID ";
     records.raw_print();
 }
 
@@ -80,10 +87,10 @@ void VehicleServiceCenter::add_task(Record * const r) {
     r->add_task(t);
     tasks_performed++;
 
-    cout << "Added the following task to vehicle with id " << r->v->id << ":" << endl
+    cout << "Added the following task:" << endl
          << t
          << endl << endl
-         << "The vehicle's updated record:"
+         << "The " << r->v->get_type() << "'s updated info:"
          << *r;
 }
 
@@ -132,7 +139,7 @@ Vehicle* VehicleServiceCenter::allocate_type(const string type) const {
     return NULL;
 }
 
-int VehicleServiceCenter::read_id() const { return acceptInRange<int>("Id", 1, 100000); }
+int VehicleServiceCenter::read_id() const { return acceptInRange<int>("ID", 1, 100000); }
 
 void VehicleServiceCenter::print_menu() const {
     cout << endl
@@ -141,7 +148,7 @@ void VehicleServiceCenter::print_menu() const {
          << "1) Add vehicle" << endl
          << "2) Checkout vehicle" << endl
          << "3) Add task to vehicle" << endl
-         << "4) Print all vehicles" << endl
+         << "4) Print all vehicles (with ids)" << endl
          << "5) Print a specific vehicle" << endl
          << "6) View statistics" << endl;
 }
@@ -168,7 +175,7 @@ void VehicleServiceCenter::menu() {
             case 1:
                 type = select_type();
                 v = allocate_type(type);
-                ins = add_vehicle(v, type);
+                ins = add_vehicle(v);
                 if(ins != NULL)
                     add_task(ins);
                 break;

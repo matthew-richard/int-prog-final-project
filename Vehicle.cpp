@@ -4,7 +4,6 @@ using std::getline;
 
 Vehicle Vehicle::menu_constructor() {
     cout << endl;
-    int id = acceptInRange<int>("id", 1, 100000);
     int year = acceptInRange<int>("year", 2000, 2014);
     double mileage = acceptPositive<double>("mileage");
     string color = "";
@@ -12,11 +11,11 @@ Vehicle Vehicle::menu_constructor() {
     cout << "color?: ";
     getline(cin, color);
 
-    return Vehicle(id, year, color, mileage);
+    return Vehicle(year, color, mileage);
 }
 
 ostream& Vehicle::print(ostream& out) const {
-    out << "id: " << id
+    out << "*" << type << "*"
         << " / year: " << year
         << " / color: " << color
         << " / mileage: " << mileage << " miles"

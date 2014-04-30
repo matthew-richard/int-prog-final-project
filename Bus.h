@@ -16,7 +16,8 @@ class Bus : public Car {
 public:
     Bus(const Car &c, const int p_c)
       : Car(c),
-        passenger_capacity(p_c) {}
+        passenger_capacity(p_c)
+    { type = "Bus"; }
 
     static Bus menu_constructor();
 

@@ -18,7 +18,8 @@ public:
       : Vehicle(v),
         engine_size(e_s),
         gas_type(g_t),
-        engine_pollution(e_p) {}
+        engine_pollution(e_p)
+    { type = "Car"; }
 
     static Car menu_constructor();
 

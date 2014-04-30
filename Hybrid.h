@@ -18,7 +18,8 @@ public:
       : Car(c),
         motor_power(m_p),
         motor_usage(m_u),
-        battery_capacity(b_c) {}
+        battery_capacity(b_c)
+    { type = "Hybrid"; }
 
     static Hybrid menu_constructor();
 

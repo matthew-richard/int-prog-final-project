@@ -18,7 +18,8 @@ public:
       : Vehicle(v),
         engine_size(e_s),
         front_wheel_size(f_w_s),
-        back_wheel_size(b_w_s) {}
+        back_wheel_size(b_w_s)
+    { type = "Motorcycle"; }
 
     static Motorcycle menu_constructor();
 

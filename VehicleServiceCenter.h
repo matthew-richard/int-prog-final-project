@@ -12,7 +12,7 @@ public:
       : revenues(0), vehicles_served(0), tasks_performed(0)
     { records.MLH_set_print_option(true); }
 
-    Record* add_vehicle(Vehicle * const v, const string type);
+    Record* add_vehicle(Vehicle * const v);
     bool checkout(const int id);
     bool add_task(const int id);
     bool print_vehicle(const int id) const;

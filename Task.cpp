@@ -10,7 +10,7 @@ const Task Task::TUNE_UP = Task("tune up", 250, 500);
 Task Task::task_menu() {
     int input;
     cout << endl
-         << "Choose your task to add:" << endl
+         << "Choose your task to perform:" << endl
          << "0) Maintenance"           << endl
          << "1) Brake Change"          << endl
          << "2) Tune Up"               << endl

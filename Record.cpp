@@ -13,7 +13,7 @@ void Record::add_task(const Task &t) {
 
 ostream& operator<<(ostream& out, Record &r) {
     out << endl
-        <<"VEHICLE (" << r.type << "):" << endl
+        << "VEHICLE:" << endl
         << *r.v
         << "TASKS:" << endl
         << r.tasks
