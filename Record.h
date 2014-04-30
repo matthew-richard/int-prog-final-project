@@ -8,11 +8,12 @@
 class Record {
 friend ostream& operator<<(ostream& out, Record &r);
 public:
-    Record(Vehicle * const veh, string t)
+    Record(Vehicle * const veh, const string t)
       : v(veh) , type(t), cost(0) {}
+    ~Record();
 
-    Vehicle* v;
-    string type;
+    Vehicle * const v;
+    const string type;
     List<Task> tasks;
     double cost;
 

@@ -27,10 +27,10 @@ class MLH_Map {
         bool is_stem() const;
         bool is_open() const;
 
-        int put(int key, T* pvalue);
-        int key_index(int key) const;
+        int put(const int key, T * const pvalue);
+        int key_index(const int key) const;
 
-        T* delete_at_index(int index);
+        T* delete_at_index(const int index);
 
     };
 
@@ -48,28 +48,29 @@ public:
     int MLH_steps() const;
 
     bool MLH_get_print_option() const;
-    void MLH_set_print_option(bool to);
+    void MLH_set_print_option(const bool to);
 
-    int MLH_insert(int key, T* pvalue);
-    T* MLH_delete(int key);
-    T* MLH_get(int key);
+    int MLH_insert(const int key, T * const pvalue);
+    T* MLH_delete(const int key);
+    T* MLH_get(const int key) const;
 
-    void raw_print();
+    void raw_print() const;
 
 private:
     Node* const root;
     bool print_entries;
     int widths[NUM_ROWS + 1]; // # hash nodes in each row (widths[0] always = 1)
-    int steps; // effort spent
+    static int steps; // effort spent. Declared static as a workaround the fact that
+                      // we increment steps in functions declared 'const' (i.e. get).
     
-    void expand(Node* n, int level); // aka explode
-    void collapse(Node* n, int level);
+    void expand(Node * const n, const int level); // aka explode
+    void collapse(Node * const n, const int level);
 
     // NULL if failure
-    int subtree_insert(Node* n, int level, int key, T* pvalue);
-    int subtree_delete(Node* n, int level, int key, T** ppvalue);
-    T* subtree_get(Node* n, int level, int key);
-    ostream &subtree_print(ostream &output, Node* n) const;
+    int subtree_insert(Node * const n, const int level, const int key, T * const pvalue);
+    int subtree_delete(Node * const n, const int level, const int key, T** ppvalue);
+    T* subtree_get(Node * const n, const int level, const int key) const;
+    ostream &subtree_print(ostream &output, Node * const n) const;
 };
 
 #include "MLH_Map_Node.cpp"

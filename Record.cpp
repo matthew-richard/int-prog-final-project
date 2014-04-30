@@ -2,6 +2,10 @@
 #include "Hybrid.h"
 #include "Motorcycle.h"
 
+Record::~Record() {
+    delete v;
+}
+
 void Record::add_task(const Task &t) {
     tasks.Insert(t);
     cost += t.parts_cost + t.labor_cost;

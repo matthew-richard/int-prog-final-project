@@ -14,7 +14,7 @@ using std::endl;
 
 class Bus : public Car {
 public:
-    Bus(Car c, int p_c)
+    Bus(const Car &c, const int p_c)
       : Car(c),
         passenger_capacity(p_c) {}
 
@@ -22,7 +22,7 @@ public:
 
     ostream& print(ostream& out) const;
 
-    int passenger_capacity;
+    const int passenger_capacity;
 };
 
 #endif

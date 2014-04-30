@@ -41,5 +41,30 @@ somehow work around get returning via reference parameter?
 // get returns T* to data.
 // insert inserts T* to data. returns int.
 // subtree_destroy no longer deletes data; just normal Node destructor
-adjust benchmark to handle these changes
+// adjust benchmark to handle these changes
 adjust pt 2 to handle these changes
+
+// pt 2 performs get a little more than it needs to
+
+
+// *now* can we add vehicle deletion to Record's destructor (if so, edit VSC ln 52)?
+
+// change ambigous values to doubles
+
+add extra functions?
+
+// specify const's
+
+finish design
+
+//update makefile so it's not 'test'
+
+//revise for:
+    //uninitialized values
+
+// cs120:
+// should we run extra 'gets' just to give immediate feedback on id availability?
+// ok to leave vehicles in static memory after program's finished?
+// declaring const when step's altered?
+
+    

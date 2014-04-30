@@ -6,7 +6,7 @@ Vehicle Vehicle::menu_constructor() {
     int id = acceptInRange<int>("id", 1, 100000);
     int year = acceptInRange<int>("year", 2000, 2014);
     double mileage = acceptPositive<double>("mileage");
-    string color;
+    string color = "";
     
     cout << "color?: ";
     getline(cin, color);

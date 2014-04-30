@@ -10,20 +10,20 @@ class VehicleServiceCenter {
 public:
     VehicleServiceCenter() { records.MLH_set_print_option(true); }
 
-    Record* add_vehicle(Vehicle* v, string type);
-    bool checkout(int id);
-    bool add_task(int id);
-    bool print_vehicle(int id);
-    void print_vehicles();
+    Record* add_vehicle(Vehicle * const v, const string type);
+    bool checkout(const int id);
+    bool add_task(const int id);
+    bool print_vehicle(const int id) const;
+    void print_vehicles() const;
 
     void menu();
 private:
     MLH_Map<Record> records;
 
-    void print_menu();
-    string select_type();
-    Vehicle* allocate_type(string type);
-    int read_id();
+    void print_menu() const;
+    string select_type() const;
+    Vehicle* allocate_type(const string type) const;
+    int read_id() const;
 };
 
 #endif

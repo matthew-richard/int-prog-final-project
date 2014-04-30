@@ -3,7 +3,7 @@
 Hybrid Hybrid::menu_constructor() {
     Car c = Car::menu_constructor();
 
-    int motor_power = acceptPositive<int>("motor power");
+    double motor_power = acceptPositive<double>("motor power");
     double motor_usage = acceptPositive<double>("motor usage (hours)");
     double battery_capacity = acceptPositive<double>("battery capacity");;
 

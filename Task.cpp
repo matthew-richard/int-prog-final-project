@@ -38,15 +38,15 @@ Task Task::task_menu() {
 }
 
 Task Task::menu_constructor() {
-    double parts_cost;
-    double labor_cost;
-    string name;
+    double parts_cost = 0;
+    double labor_cost = 0;
+    string name = "";
 
     cout << "name?: ";
     getline(cin, name);
 
-    parts_cost = acceptPositive<int>("parts cost");
-    labor_cost = acceptPositive<int>("labor cost");
+    parts_cost = acceptPositive<double>("parts cost");
+    labor_cost = acceptPositive<double>("labor cost");
 
     return Task(name, parts_cost, labor_cost);
 }

@@ -14,7 +14,7 @@ using std::endl;
 
 class Motorcycle : public Vehicle {
 public:
-    Motorcycle(Vehicle v, int e_s, double f_w_s, double b_w_s)
+    Motorcycle(const Vehicle &v, const double e_s, const double f_w_s, const double b_w_s)
       : Vehicle(v),
         engine_size(e_s),
         front_wheel_size(f_w_s),
@@ -24,9 +24,9 @@ public:
 
     ostream& print(ostream& out) const;
 
-    int engine_size;
-    double front_wheel_size;
-    double back_wheel_size;
+    const double engine_size;
+    const double front_wheel_size;
+    const double back_wheel_size;
 };
 
 #endif

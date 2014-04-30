@@ -3,7 +3,7 @@
 Motorcycle Motorcycle::menu_constructor() {
     Vehicle v = Vehicle::menu_constructor();
 
-    int engine_size = acceptPositive<int>("engine size (cc)");
+    double engine_size = acceptPositive<double>("engine size (cc)");
     double front_wheel_size = acceptPositive<double>("front wheel size");
     double back_wheel_size = acceptPositive<double>("back wheel size");
 

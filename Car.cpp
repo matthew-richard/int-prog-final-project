@@ -3,7 +3,7 @@
 Car Car::menu_constructor() {
     Vehicle v = Vehicle::menu_constructor();
 
-    int engine_size = acceptPositive<int>("engine size (cc)");
+    double engine_size = acceptPositive<double>("engine size (cc)");
     double engine_pollution = acceptInRange<double>("engine pollution %", 0, 100);
     string gas_type = "";
 
@@ -12,7 +12,7 @@ Car Car::menu_constructor() {
          << "1) Plus"       << endl
          << "2) Regular"    << endl;
     while (gas_type == "") {
-        int input;
+        int input = 0;
         cout << "input: ";
         cin >> input;
         switch (input) {

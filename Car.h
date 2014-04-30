@@ -14,7 +14,7 @@ using std::endl;
 
 class Car : public Vehicle {
 public:
-    Car(Vehicle v, int e_s, string g_t, double e_p)
+    Car(const Vehicle &v, const double e_s, const string g_t, const double e_p)
       : Vehicle(v),
         engine_size(e_s),
         gas_type(g_t),
@@ -24,9 +24,9 @@ public:
 
     ostream& print(ostream& out) const;
 
-    int engine_size;
-    string gas_type;
-    double engine_pollution;
+    const double engine_size;
+    const string gas_type;
+    const double engine_pollution;
 };
 
 #endif

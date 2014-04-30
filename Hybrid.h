@@ -14,7 +14,7 @@ using std::endl;
 
 class Hybrid : public Car {
 public:
-    Hybrid(Car c, int m_p, double m_u, double b_c)
+    Hybrid(const Car &c, const double m_p, const double m_u, const double b_c)
       : Car(c),
         motor_power(m_p),
         motor_usage(m_u),
@@ -24,9 +24,9 @@ public:
 
     ostream& print(ostream& out) const;
 
-    int motor_power;
-    double motor_usage; // Units: hours
-    double battery_capacity;
+    const double motor_power;
+    const double motor_usage; // Units: hours
+    const double battery_capacity;
 };
 
 #endif

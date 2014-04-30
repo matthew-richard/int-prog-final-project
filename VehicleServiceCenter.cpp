@@ -1,4 +1,5 @@
 #include "VehicleServiceCenter.h"
+#include "Menu_helpers.h"
 #include "Task.h"
 #include "Vehicle.h"
 #include "Car.h"
@@ -7,19 +8,20 @@
 #include "Bus.h"
 
 
-Record* VehicleServiceCenter::add_vehicle(Vehicle* v, string type) {
-    Record* result = records.MLH_insert(v->id, Record(v, type));
-    if (result == NULL) {
+Record* VehicleServiceCenter::add_vehicle(Vehicle * const v, const string type) {
+    Record* ins = new Record(v, type);
+    int result = records.MLH_insert(v->id, ins); 
+    if (!result) {
         cout << "Error: There's already a vehicle with that id"
              << " in the service center!" << endl;
     } else {
         cout << type << " with id " << v->id << " successfully"
              << " arrived at service center." << endl;
     }
-    return result;
+    return ins;
 }
 
-bool VehicleServiceCenter::print_vehicle(int id) {
+bool VehicleServiceCenter::print_vehicle(const int id) const {
     Record* r = records.MLH_get(id);
     if (r == NULL) {
         cout << "Error: Couldn't find vehicle with id " << id << "!";
@@ -31,13 +33,18 @@ bool VehicleServiceCenter::print_vehicle(int id) {
     return true;
 }
 
-void VehicleServiceCenter::print_vehicles() {
-    cout << "The vehicles in the service center are as follows:" << endl << endl;
+void VehicleServiceCenter::print_vehicles() const {
+    if (records.MLH_size() == 0) {
+        cout << "There are no vehicles in the service center." << endl;
+        return;
+    }
+
+    cout << "The " << records.MLH_size() << " vehicles in the service center are as follows:" << endl << endl;
     records.raw_print();
 }
 
-bool VehicleServiceCenter::checkout(int id) {
-    Record* r = records.MLH_get(id);
+bool VehicleServiceCenter::checkout(const int id) {
+    Record* r = records.MLH_delete(id);
     if (r == NULL) {
         cout << "Error: Couldn't find vehicle with id " << id << "!";
         return false;
@@ -46,23 +53,21 @@ bool VehicleServiceCenter::checkout(int id) {
     cout << "Checking out vehicle with id " << id << ". Bill below." << endl;
     
     cout << *r;
+    delete r;
 
-    records.MLH_delete(r->v->id);
     cout << "Checkout successful."
          << endl;
     return true;
 }
 
-bool VehicleServiceCenter::add_task(int id) {
-    Task t;
+bool VehicleServiceCenter::add_task(const int id) {
     Record* r = records.MLH_get(id);
     if (r == NULL) {
         cout << "Error: Couldn't find vehicle with id " << id << "!";
         return false;
     }
 
-    t = Task::task_menu();
-
+    Task t = Task::task_menu();
     r->add_task(t);
 
     cout << "Added the following task to vehicle with id " << id << ":" << endl
@@ -71,7 +76,7 @@ bool VehicleServiceCenter::add_task(int id) {
     return true;
 }
 
-string VehicleServiceCenter::select_type() {
+string VehicleServiceCenter::select_type() const {
     cout << "What type?" << endl
          << "0) Vehicle" << endl
          << "1) Car"     << endl
@@ -94,7 +99,7 @@ string VehicleServiceCenter::select_type() {
     return types[input];
 }
 
-Vehicle* VehicleServiceCenter::allocate_type(string type) {
+Vehicle* VehicleServiceCenter::allocate_type(const string type) const {
     if (type == "Vehicle")
         return new Vehicle(Vehicle::menu_constructor());
     else if (type == "Car")
@@ -108,22 +113,9 @@ Vehicle* VehicleServiceCenter::allocate_type(string type) {
     return NULL;
 }
 
-int VehicleServiceCenter::read_id() {
-    int id = 0;
-    while (!id) {
-        cout << "Id?: ";
-        cin >> id;
-        cin.ignore(1000, '\n');
+int VehicleServiceCenter::read_id() const { return acceptInRange<int>("Id", 1, 100000); }
 
-        if (records.MLH_get(id) == NULL) {
-            cout << "No vehicle with that id! Please reenter." << endl;
-            id = 0;
-        }
-    }
-    return id;
-}
-
-void VehicleServiceCenter::print_menu() {
+void VehicleServiceCenter::print_menu() const {
     cout << endl
          << "Vehicle Service Ctr: What would you like to do?" << endl
          << "0) Exit" << endl
@@ -138,8 +130,8 @@ void VehicleServiceCenter::menu() {
     int input = 0;
 
     while (input >= 0) {
-        Vehicle* v;
-        string type;
+        Vehicle* v = NULL;
+        string type = "";
         
         print_menu();
 
@@ -158,25 +150,16 @@ void VehicleServiceCenter::menu() {
                 add_vehicle(v, type);
                 break;
             case 2:
-                if (records.MLH_size() != 0) {
-                    checkout(read_id());                    
-                } else
-                    cout << "The service center is empty!" << endl;
+                checkout(read_id());                    
                 break;
             case 3:
-                if (records.MLH_size() != 0) {
-                    add_task(read_id());                    
-                } else
-                    cout << "The service center is empty!" << endl;
+                add_task(read_id());                    
                 break;
             case 4:
                 print_vehicles();
                 break;
             case 5:
-                if (records.MLH_size() != 0) {
-                    print_vehicle(read_id());                    
-                } else
-                    cout << "The service center is empty!" << endl;
+                print_vehicle(read_id());                    
                 break;
             default:
                 cout << "Invalid input! Please reenter." << endl;

@@ -15,16 +15,16 @@ using std::endl;
 class Vehicle {
     friend ostream &operator<<(ostream &out, const Vehicle &v);
 public:
-    Vehicle(int i, int y, string c, double m)
+    Vehicle(const int i, const int y, const string c, const double m)
       : id(i), year(y), color(c), mileage(m) {}
 
     static Vehicle menu_constructor();
 
     virtual ostream& print(ostream& out) const;
 
-    int id;
+    const int id;
     int year;
-    string color;
-    double mileage;
+    const string color;
+    const double mileage;
 };
 #endif
