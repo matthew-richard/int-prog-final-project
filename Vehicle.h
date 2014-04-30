@@ -23,7 +23,7 @@ public:
     virtual ostream& print(ostream& out) const;
 
     const int id;
-    int year;
+    const int year;
     const string color;
     const double mileage;
 };
