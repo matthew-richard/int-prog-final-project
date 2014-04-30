@@ -14,6 +14,7 @@ Record* VehicleServiceCenter::add_vehicle(Vehicle * const v, const string type) 
     if (!result) {
         cout << "Error: There's already a vehicle with that id"
              << " in the service center!" << endl;
+        ins = NULL;
     } else {
         cout << type << " with id " << v->id << " successfully"
              << " arrived at service center." << endl;
@@ -28,7 +29,7 @@ bool VehicleServiceCenter::print_vehicle(const int id) const {
         return false;
     }
     cout << r->type << " with id " << id << " is as follows:" << endl
-         << *(r->v)
+         << *r
          << endl;
     return true;
 }
@@ -39,7 +40,9 @@ void VehicleServiceCenter::print_vehicles() const {
         return;
     }
 
-    cout << "The " << records.MLH_size() << " vehicles in the service center are as follows:" << endl << endl;
+    cout << endl
+         << "The " << records.MLH_size() << " vehicles in the service"
+         << " center are as follows:" << endl << endl;
     records.raw_print();
 }
 
@@ -53,10 +56,12 @@ bool VehicleServiceCenter::checkout(const int id) {
     cout << "Checking out vehicle with id " << id << ". Bill below." << endl;
     
     cout << *r;
+    revenues += r->cost;
     delete r;
 
     cout << "Checkout successful."
          << endl;
+    vehicles_served++;
     return true;
 }
 
@@ -66,18 +71,32 @@ bool VehicleServiceCenter::add_task(const int id) {
         cout << "Error: Couldn't find vehicle with id " << id << "!";
         return false;
     }
-
-    Task t = Task::task_menu();
-    r->add_task(t);
-
-    cout << "Added the following task to vehicle with id " << id << ":" << endl
-         << t
-         << endl;
+    add_task(r);
     return true;
 }
 
+void VehicleServiceCenter::add_task(Record * const r) {
+    Task t = Task::task_menu();
+    r->add_task(t);
+    tasks_performed++;
+
+    cout << "Added the following task to vehicle with id " << r->v->id << ":" << endl
+         << t
+         << endl << endl
+         << "The vehicle's updated record:"
+         << *r;
+}
+
+void VehicleServiceCenter::print_stats() const {
+    cout << endl
+         << "Total revenues: \t$" << revenues << endl
+         << "Vehicles served:\t" << vehicles_served << endl
+         << "Tasks performed:\t" << tasks_performed << endl;
+}
+
 string VehicleServiceCenter::select_type() const {
-    cout << "What type?" << endl
+    cout << endl
+         << "What type?" << endl
          << "0) Vehicle" << endl
          << "1) Car"     << endl
          << "2) Hybrid"  << endl
@@ -123,7 +142,8 @@ void VehicleServiceCenter::print_menu() const {
          << "2) Checkout vehicle" << endl
          << "3) Add task to vehicle" << endl
          << "4) Print all vehicles" << endl
-         << "5) Print a specific vehicle" << endl;
+         << "5) Print a specific vehicle" << endl
+         << "6) View statistics" << endl;
 }
 
 void VehicleServiceCenter::menu() {
@@ -132,6 +152,7 @@ void VehicleServiceCenter::menu() {
     while (input >= 0) {
         Vehicle* v = NULL;
         string type = "";
+        Record* ins = NULL;
         
         print_menu();
 
@@ -147,7 +168,9 @@ void VehicleServiceCenter::menu() {
             case 1:
                 type = select_type();
                 v = allocate_type(type);
-                add_vehicle(v, type);
+                ins = add_vehicle(v, type);
+                if(ins != NULL)
+                    add_task(ins);
                 break;
             case 2:
                 checkout(read_id());                    
@@ -160,6 +183,9 @@ void VehicleServiceCenter::menu() {
                 break;
             case 5:
                 print_vehicle(read_id());                    
+                break;
+            case 6:
+                print_stats();
                 break;
             default:
                 cout << "Invalid input! Please reenter." << endl;

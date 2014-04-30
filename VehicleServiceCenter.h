@@ -8,7 +8,9 @@
 
 class VehicleServiceCenter {
 public:
-    VehicleServiceCenter() { records.MLH_set_print_option(true); }
+    VehicleServiceCenter()
+      : revenues(0), vehicles_served(0), tasks_performed(0)
+    { records.MLH_set_print_option(true); }
 
     Record* add_vehicle(Vehicle * const v, const string type);
     bool checkout(const int id);
@@ -20,10 +22,16 @@ public:
 private:
     MLH_Map<Record> records;
 
+    double revenues;
+    int vehicles_served;
+    int tasks_performed;
+
+    void add_task(Record * const r);
     void print_menu() const;
     string select_type() const;
     Vehicle* allocate_type(const string type) const;
     int read_id() const;
+    void print_stats() const;
 };
 
 #endif

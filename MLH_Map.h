@@ -60,8 +60,8 @@ private:
     Node* const root;
     bool print_entries;
     int widths[NUM_ROWS + 1]; // # hash nodes in each row (widths[0] always = 1)
-    static int steps; // effort spent. Declared static as a workaround the fact that
-                      // we increment steps in functions declared 'const' (i.e. get).
+    mutable int steps; // effort spent. Altered in 'const' functions like 'get',
+                       // so we made it mutable.
     
     void expand(Node * const n, const int level); // aka explode
     void collapse(Node * const n, const int level);

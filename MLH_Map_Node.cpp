@@ -9,7 +9,7 @@ MLH_Map< T >::Node::Node() {
     size = 0;
 }
 
-// deletes node and any children attached to it.
+// deletes node and any children AND DATA attached to it.
 // calling this on the root of a tree deletes the entire tree.
 template <typename T>
 MLH_Map< T >::Node::~Node() {
@@ -18,6 +18,9 @@ MLH_Map< T >::Node::~Node() {
             if (children[i] != NULL)
                 delete children[i];
         }
+    } else {
+        for (int i = 0; i < size; i++)
+            delete pvalues[i];
     }
 }
 

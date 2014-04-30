@@ -3,6 +3,7 @@
 using std::getline;
 
 Vehicle Vehicle::menu_constructor() {
+    cout << endl;
     int id = acceptInRange<int>("id", 1, 100000);
     int year = acceptInRange<int>("year", 2000, 2014);
     double mileage = acceptPositive<double>("mileage");

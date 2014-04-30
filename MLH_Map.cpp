@@ -1,8 +1,5 @@
 /* MLH_Map definitions */
 
-template<typename T>
-int MLH_Map<T>::steps = 0;
-
 // print tree
 template <typename T>
 ostream &operator<<(ostream &output, const MLH_Map< T > &m) {
@@ -21,14 +18,15 @@ ostream &operator<<(ostream &output, const MLH_Map< T > &m) {
     return output;
 }
 
-// helpful for pt 2. Prints contents w/o MLH_Map header
+// helpful for pt 2. Prints contents w/o MLH_Map header and tree details.
 template <typename T>
 void MLH_Map<T>::raw_print() const { subtree_print(cout, root); }
 
 template <typename T>
 MLH_Map< T >::MLH_Map()
   : root (new Node()),
-    print_entries(false)
+    print_entries(false),
+    steps(0)
 {
     widths[0] = 1;
     for(int i = 1; i <= NUM_ROWS; i++) {
@@ -116,6 +114,7 @@ void MLH_Map< T >::collapse(Node* n, int level) {
         // copy keys and pvalues to parent
         for (int j = 0; j < child->size; j++)
             n->put(child->keys[j], child->pvalues[j]);
+        child->size = 0;
 
         delete child;
         deleted_children++;

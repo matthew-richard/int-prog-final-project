@@ -28,6 +28,21 @@ so that the parent could hold all the entries contained in its children,
 the parent is "collapsed", i.e. the entries of its children are copied
 up, and the children are deleted.
 
+We'll let the client handle allocating the actual data. MLH_insert will
+simply insert a pointer to the data, and MLH_delete will delete the
+entry corresponding to the data, but will simply return a pointer
+to the data, as opposed to calling delete on the pointer directly. This
+provides us with greater flexibility in using MLH, especially in part 2.
+
+However, for the client's convenience, the destructor of the actual
+list will delete the data pointed to by each of its nodes. This prevents
+the user from having to keep track of all the data pointers themselves
+(which is the point of the MLH_Map in the first place), or, worse, from
+having to call delete on every key in the MLH_map in order for there to
+be no statically allocated bytes when the program ends. We accomplish
+this in the Node destructor, detailed below.
+
+
 Constants:
 HASH_RANGE = 5
 NUM_ROWS = 8
@@ -77,8 +92,7 @@ private:
     void collapse(Node* n, int level) <-- collapses into an available parent by rehashing into parent. 
 
     // Our recursive helper methods to the main MLH operations (insert, delete, get). Insert, delete, and get
-    // values in the subtree whose root is 'n'. Don't forget to copy the passed-in T value to static memory
-    // in subtree_insert.
+    // values in the subtree whose root is 'n'. 
     //
     // In order to conserve memory, we did not put a 'level' field in Node -- as a result, the level of a node
     // must be passed by parameter into the subtree_insert, delete, and get functions.
@@ -101,17 +115,23 @@ print entire tree (overload <<)
         call root->print
 
 ~MLH_Map: deleting all nodes.
-    Call root->hard_destroy().
+    Call root's destructor.
 
-// Destroys all data contained in the subtree with this node as the root.
-// Have to delete not only nodes, but also the data pointed to by their
-// data arrays (since we automatically copy whatever's inserted into
-// static memory).
-Node::hard_destroy()
-    If stem, call hard_destroy() on all non-null children.
-    If leaf, delete at all data pointers, then delete the node itself.
+// In the actual MLH operations, this will only
+// ever be called when the Node is a leaf. But
+// in the MLH_Map destructor, this is called on
+// the root node, causing the entire tree and
+// all of its data to be deleted.
+Node::~Node()
+    If stem, call delete on all non-null children.
+    Else (leaf), delete data pointed to by this node.
+    delete this node.
         
-// aka explode. See high-level description (above) for general description.
+// aka explode. Create children, rehash into them. It's
+// possible that all keys will hash into the same node,
+// in which case we may have to explode again if what
+// we're trying to insert into the same node that
+// everything hashed into.
 void expand(Node* n, int level)
     Node* child    
     int new_children = 0
@@ -134,11 +154,11 @@ int MLH_get(key)
     subtree_get @ root.
 
 // Delete entry with specified key from subtree with specified node
-// as root.
+// as root. Return pointer to data contained at key; let the client
+// take care of how to dispose of it.
 subtree_delete(Node* n, key)
     If leaf (size <= HASH_RANGE),
         If desired key is in this node, remove the key and its value. return 1.
-            Be sure to delete the data attached to the key (it's in static memory)
             To keep all values to the left of the node's array, take the last value and put it in the index we just deleted
             Decrement size of node
             If node empty, delete it--UNLESS IT'S THE ROOT NODE (decrement widths[] accordingly). Set children[]
@@ -160,14 +180,14 @@ subtree_get(Node* n, int key)
 subtree_insert(int key, T value, Node* n)
     Similar traversal to subtree_delete and subtree_get. Return error when key being inserted is already in tree.
     Upon reaching a leaf (and key isn't already in it):
-        If there's space, insert into the leaf. return 1.
+        If there's space (open slot, not full, size < HASH_RANGE), insert into the leaf. return 1.
         Otherwise, expand (explode) the leaf. Attempt to insert into the appropriate child:
             If the appropriate child (determined by hash function) already exists, insert into it.
             Else, create the child and call subtree_insert on it.
     Increment the size of this node if an insertion was made into it or into one of its children (we'll know this
         by the return value of one of the above subtree_insert calls).
 
-// See high-level description for explanation
+// Rehash children back up into parent. Delete children.
 void collapse(Node* n, int level) // collapsing children into n
     // for every non-null child of n
         // copy keys and data to parent
@@ -206,15 +226,15 @@ class Vehicle
     string color
     double mileage
 class Car : Vehicle
-    int enginesize
+    double enginesize
     string gastype
     double enginepollution
 class Hybrid : Car
-    int motorpower
+    double motorpower
     double motorusage
     double batterycapacity
 class Motorcycle : Vehicle
-    int enginesize
+    double enginesize
     double frontwheelsize
     double backwheelsize
 class Bus : Car
@@ -248,8 +268,9 @@ class Record
 
 where v is a pointer to our stored vehicle, and type is what we use to identify whether it's a
 "Vehicle", "Car," "Hybrid", "Bus", or "Motorcycle". When we print the record (overloading <<),
-we can simply print 'type' to indicate what type our vehicle is, and simply use the << operator
-on the dereferenced v pointer.
+we can simply print 'type' to indicate what type our vehicle is, and then use the << operator
+on the dereferenced v pointer. The List<> type given will be provided by our adaptation of our
+PackageList class from the previous assignment to work with templates. 
 
 Our Task type will be a simple class with 3 fields:
 
@@ -269,4 +290,86 @@ class Task
     ...
 
 In addition to defining a menu_constructor, we'll also define a task_menu that allows the user to choose
-between the default tasks or define their own using the menu_constructor.
+between the default tasks or define their own using the menu_constructor:
+
+0: Maintenance
+1: Brake change
+2: Tune up
+3: *custom task* // calls Task::menu_constructor()
+
+Our menu_constructors will be simple: They'll just run through each necessary value of the type and ask the user for
+each one. For instance, in the case of a Vehicle,
+
+Id?: xx
+Year?: xxxx
+Color?: xxxx xxxx
+Mileage?: xxxx
+
+The menu_constructors will verify that valid data has been entered, i.e. id 1-100000, year 2000-2014, mileage positive
+etc. Almost all of the input validation our menu_constructors will perform will be checking whether a numerical value
+(integer or double) is within a certain range, or just positive. We will define, in a separate file, helper template
+methods for this: acceptPostive<T>(), acceptInRange<T>(lo, hi). So, for instance, acceptInRange<int>(1, 100000) will
+prompt the user for input until they enter an integer between 1 and 100000.
+
+We provide an example of one of the .cpp classes for a Vehicle subtype, Hybrid:
+
+static Hybrid menu_constructor() {
+    Car c = Car::menu_constructor() // gets us not only the paramters for vehicle, but also those for car
+
+    // get additional parameters for Hybrid
+    double motor_power = acceptPostivie<double>()
+    ...
+
+    return Hybrid(c, motor_power, ...)
+}
+
+Here's how we'll override print() for the subtypes, utilizing the already-written print() code for supertypes:
+
+ostream& print(ostream& out) {
+    out << (Car) *this  // take advantage of the already written Car << overload
+        << "motor power: " << motor_power
+        << ...
+    return out
+}
+
+Finally, the actual VehicleServiceCenter class will have 5 public operations, each of which will be a separate menu
+option available to the user:
+
+1) add vehicle
+2) checkout vehicle
+3) add task to vehicle
+4) print vehicle
+5) print all vehicles
+
+Printing a "vehicle" actually refers to printing a Record, displaying not only the vehicle's details but also what tasks
+are in store for it, and the total cost of those tasks. Printing all vehicles will essentially consist of printing
+VehicleServiceCenter's one and only field, 'records':
+
+class VehicleServiceCenter {
+    MLH_Map<Record> records;
+
+    Record* addvehicle(Vehicle)
+    bool checkout(id)
+    bool addtask(id)
+    bool printvehicle(id)
+    void print_vehicles()
+    ...
+}
+
+This will be easy since we'll have overridden << for MLH_Map as well as for Record. The client will checkout, add tasks
+to, and print specific vehicles by specifying the corresponding id number. As for adding a Vehicle, the client will
+define all its parameters, then the new Vehicle will be passed into the VehicleServiceCenter and a pointer to the
+inserted Record will pop out. From there, the user will be free to add the first task to the Record.
+
+addvehicle will generally be an insertion into the MLH. checkout will generally be a deletion from the MLH. printvehicle
+will generally be a get from the MLH.
+
+The user interface when adding a vehicle will need to allow the client to specify what type of vehicle they want: Just
+a plain Vehicle, a Car, a Bus, a Hybrid, or a Motorcycle. Capturing this decision of theirs will be trivial, a simple
+menu with 5 choices. Based on this decision, we will allocate a specific Vehicle subtype. For instance, if they choose
+car, we will allocate new Car(Car::menu_constructor()), then pass this as a Vehicle* to addvehicle.
+
+We will use the return values from MLH_Insert, MLH_delete, and MLH_get to determine whether an operation was successful
+or not, and we will output the result in a readable format to the user.
+
+
