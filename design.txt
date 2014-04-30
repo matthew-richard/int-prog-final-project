@@ -2,19 +2,43 @@ Matthew Richard
 mricha56@jhu.edu
 
 ////////////////////// PART 1 ///////////////////////
-We will name our multi-level hash data structure MLH_Map.
+We will name our multi-level hash data structure MLH_Map, as it
+maps keys to values.
+
+High-level: In the first part we will implement a multi-level
+hash (MLH) data structure. The user will be able to insert key-
+value pairs, remove key-value pairs (specifying a key), get
+a value from specifying a key, and print all the key-value
+pairs in the data structure.
+
+It will consist of singly linked nodes.
+
+Each node will contain three arrays of size 5: keys, data, and
+children. A node can hold at most 5 (key, data) entries. When the
+user attempts to insert a sixth entry, the node will "explode," or
+"expand"--i.e. its contents will be distributed into a maximum of 5
+children. The index of the child in children[] will be chosen for each
+entry based on what the key of each entry hashes to using the
+provided ML_hash.
+
+Likewise, when an entry is deleted so that a node no longer holds any
+entries, that node will be deleted from memory and its corresponding
+pointer in the parent will be set to NULL. Similarly, when an entry is deleted
+so that the parent could hold all the entries contained in its children,
+the parent is "collapsed", i.e. the entries of its children are copied
+up, and the children are deleted.
 
 Constants:
 HASH_RANGE = 5
 NUM_ROWS = 8
 
-Pseudo-declarations:
+Pseudo-declarations (low/mid-level):
 
 *** MLH_Map.h ***
 template typename T
 class MLH_Map
     
-    class Node  <-- nested class
+    class Node  <-- nested class (shouldn't be available to other classes)
     public:
         int keys[HASH_RANGE]
         T* pvalues[HASH_RANGE]
@@ -64,11 +88,14 @@ private:
 
 
 *** Function details *** (definitions for Node in MLH_Map_Node.cpp, for MLH_Map in MLH_Map.cpp)
-Node::print()
+
+// Prints every entry stored in the subtree with this node as the root.
+Node::print() <-- aka print_subtree
     if stem, print() for every non-null child.
     if leaf, print key-value pairs.
 
-printing tree (overload <<)
+// Prints the MLH_Map.
+print entire tree (overload <<)
     print MLH_height(), num_nodes(), size().
     if print_entries
         call root->print
@@ -76,11 +103,15 @@ printing tree (overload <<)
 ~MLH_Map: deleting all nodes.
     Call root->hard_destroy().
 
+// Destroys all data contained in the subtree with this node as the root.
+// Have to delete not only nodes, but also the data pointed to by their
+// data arrays (since we automatically copy whatever's inserted into
+// static memory).
 Node::hard_destroy()
     If stem, call hard_destroy() on all non-null children.
     If leaf, delete at all data pointers, then delete the node itself.
         
-
+// aka explode. See high-level description (above) for general description.
 void expand(Node* n, int level)
     Node* child    
     int new_children = 0
@@ -94,14 +125,17 @@ void expand(Node* n, int level)
         //copy key and value to child
     increment widths[] value according to level and new_children
 
+// Delete, insert, get entries with specified key (and value)
 int MLH_delete(key)
     subtree_delete @ root.
-int MLH_insert
+int MLH_insert(key, value)
     subtree_insert @ root.
-int MLH_get
+int MLH_get(key)
     subtree_get @ root.
-    
-subtree_delete
+
+// Delete entry with specified key from subtree with specified node
+// as root.
+subtree_delete(Node* n, key)
     If leaf (size <= HASH_RANGE),
         If desired key is in this node, remove the key and its value. return 1.
             Be sure to delete the data attached to the key (it's in static memory)
@@ -115,12 +149,15 @@ subtree_delete
             in which case return error.
         Decrement size if the above call indicates that a deletion occurred.
             If size is now < HASH_RANGE, collapse.
-            
-subtree_get
+
+// Get value of entry with specified key, assuming it's stored in subtree with
+// specified node as root 
+subtree_get(Node* n, int key)
     Traverse until leaf, exactly the same as in subtree_delete. Return errors in the same cases as subtree_delete.
     But if desired key is discovered in leaf node, return the data attached to the key.
-    
-subtree_insert
+
+// Insert key-value pair into subtree with specified Node as root.
+subtree_insert(int key, T value, Node* n)
     Similar traversal to subtree_delete and subtree_get. Return error when key being inserted is already in tree.
     Upon reaching a leaf (and key isn't already in it):
         If there's space, insert into the leaf. return 1.
@@ -130,6 +167,7 @@ subtree_insert
     Increment the size of this node if an insertion was made into it or into one of its children (we'll know this
         by the return value of one of the above subtree_insert calls).
 
+// See high-level description for explanation
 void collapse(Node* n, int level) // collapsing children into n
     // for every non-null child of n
         // copy keys and data to parent
@@ -138,3 +176,97 @@ void collapse(Node* n, int level) // collapsing children into n
     // set all of n's children[] pointers to NULL
 
 
+////////////////// PART 2 ///////////////////
+In part 2 we'll create a Vehicle Service Center, which stores vehicles
+and performs various tasks on them, eventually checking those vehicles
+out and charging the owners the appropriate amount.
+
+We'll let the user define the various parameters that define the car, using a
+nested menu-based user interface. We'll also provide them with a few default,
+pre-made tasks they can perform on the cars, but also let them define their
+own tasks.
+
+All the cars in the service center will be kept track of in Records, which
+store not only the vehicles but also the (potentially infinite) number of
+tasks performed on them. These Records will be stored in an
+MLH_Map. Their keys will be the vehicle ids (1-100000) that the user
+gives them. Each Record's task will be stored in a List, which we will
+reuse from the last project, but adjusted to use templates.
+
+The user can view details of and/or checkout specific vehicles in the vehicle
+service center by specifying their ids. They can also view all the vehicles
+in the service center.
+
+There are a number of subtypes of vehicles, each with their own extra information
+that needs to be stored within a Record:
+
+class Vehicle
+    int id // 1-100000
+    int year //2000-2014
+    string color
+    double mileage
+class Car : Vehicle
+    int enginesize
+    string gastype
+    double enginepollution
+class Hybrid : Car
+    int motorpower
+    double motorusage
+    double batterycapacity
+class Motorcycle : Vehicle
+    int enginesize
+    double frontwheelsize
+    double backwheelsize
+class Bus : Car
+    int passengercapacity
+
+in short:
+Vehicle
+    Car
+        Hybrid
+        Bus
+    Motorcycle
+
+We'll need to allow the user to define each of the parameters for these vehicle types, so within
+each of these classes we'll also define a menu_constructor that returns a Vehicle of the appropriate
+type, after acquring all the necessary values from the user through a user interface.
+A Car's menu_constructor can use Vehicle's menu_constructor so that code isn't repeated, then
+add extra code for the Car-specific parameters. Same goes for the other Vehicle subclasses.
+
+In Vehicle we'll also define a virtual print() function, and overload << to call that print() function.
+This way we won't have to overload << in the subclasses, and we can redefine print() in the subclasses
+to first call Vehicle's print() (rather than simply copy-paste Vehicle's print()) and then print
+the parameters specific to that subtype.
+
+We could define 5 Record types to hold each of the different types of vehicle, but there's
+a more concise way:
+
+class Record
+    Vehicle* v
+    string type;
+    List<Task> tasks
+
+where v is a pointer to our stored vehicle, and type is what we use to identify whether it's a
+"Vehicle", "Car," "Hybrid", "Bus", or "Motorcycle". When we print the record (overloading <<),
+we can simply print 'type' to indicate what type our vehicle is, and simply use the << operator
+on the dereferenced v pointer.
+
+Our Task type will be a simple class with 3 fields:
+
+class Task
+    string name
+    double partscost
+    double laborcost
+
+As with the rest of our types, we'll override << to print its members in a readable format. We'll
+also define its own menu_constructor when the client wants to define their own task. Above, we mentioned
+that we would provide the client with default tasks to choose from ("maintenance," "tune up", etc). We
+will define these in Task as static Task fields, i.e.
+
+class Task
+    ...
+    static const Task MAINTENANCE = new Task(...)
+    ...
+
+In addition to defining a menu_constructor, we'll also define a task_menu that allows the user to choose
+between the default tasks or define their own using the menu_constructor.

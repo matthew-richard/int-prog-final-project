@@ -34,5 +34,12 @@ somehow work around get returning via reference parameter?
 
 //move subtree_ functions into Node
 
-it's apparently inefficient that we treat each action after explosion as an insert.
+-/-it's apparently inefficient that we treat each action after explosion as an insert.
 
+// delete_at_index returns T* to data.
+// delete returns T* to data.
+// get returns T* to data.
+// insert inserts T* to data. returns int.
+// subtree_destroy no longer deletes data; just normal Node destructor
+adjust benchmark to handle these changes
+adjust pt 2 to handle these changes

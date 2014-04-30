@@ -9,6 +9,18 @@ MLH_Map< T >::Node::Node() {
     size = 0;
 }
 
+// deletes node and any children attached to it.
+// calling this on the root of a tree deletes the entire tree.
+template <typename T>
+MLH_Map< T >::Node::~Node() {
+    if (is_stem()) {
+        for (int i = 0; i < HASH_RANGE; i++) {
+            if (children[i] != NULL)
+                delete children[i];
+        }
+    }
+}
+
 template <typename T>
 bool MLH_Map< T >::Node::is_empty() const { return size == 0; }
 
@@ -36,15 +48,17 @@ int MLH_Map< T >::Node::key_index(int key) const {
 }
 
 template <typename T>
-int MLH_Map< T >::Node::delete_at_index(int index) {
-    delete pvalues[index]; // delete statically allocated data
+T* MLH_Map< T >::Node::delete_at_index(int index) {
+    T* pvalue = pvalues[index];
 
-    // replace entry being deleted by last entry in the node
+    // replace entry being deleted with last entry in the node
     if (index != size - 1) {
         keys[index] = keys[size - 1];
         pvalues[index] = pvalues[size - 1];
     }
     keys[size - 1] = -1;
     size--;
+
+    return pvalue;
 }
 

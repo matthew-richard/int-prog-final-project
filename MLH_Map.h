@@ -14,6 +14,7 @@ class MLH_Map {
     class Node {
     public:
         Node();
+        ~Node();
 
         int keys[HASH_RANGE];
         T* pvalues[HASH_RANGE];
@@ -29,7 +30,7 @@ class MLH_Map {
         int put(int key, T* pvalue);
         int key_index(int key) const;
 
-        int delete_at_index(int index);
+        T* delete_at_index(int index);
 
     };
 
@@ -49,8 +50,8 @@ public:
     bool MLH_get_print_option() const;
     void MLH_set_print_option(bool to);
 
-    T* MLH_insert(int key, const T &v);
-    int MLH_delete(int key);
+    int MLH_insert(int key, T* pvalue);
+    T* MLH_delete(int key);
     T* MLH_get(int key);
 
     void raw_print();
@@ -65,10 +66,9 @@ private:
     void collapse(Node* n, int level);
 
     // NULL if failure
-    T* subtree_insert(Node* n, int level, int key, const T &v);
-    int subtree_delete(Node* n, int level, int key);
+    int subtree_insert(Node* n, int level, int key, T* pvalue);
+    int subtree_delete(Node* n, int level, int key, T** ppvalue);
     T* subtree_get(Node* n, int level, int key);
-    void subtree_destroy(Node* n);
     ostream &subtree_print(ostream &output, Node* n) const;
 };
 

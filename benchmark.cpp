@@ -50,11 +50,11 @@ int main(int argc, char** argv) {
                 num_gets++;
                 break;
             case 'D':
-                m.MLH_delete(key);
+                delete m.MLH_delete(key);
                 num_dels++;
                 break;
             case 'I':
-                m.MLH_insert(key, i);
+                m.MLH_insert(key, new int(i));
                 num_inss++;
                 break;
         }
