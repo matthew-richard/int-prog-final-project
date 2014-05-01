@@ -41,6 +41,11 @@ the user from having to keep track of all the data pointers themselves
 having to call delete on every key in the MLH_map in order for there to
 be no statically allocated bytes when the program ends. We accomplish
 this in the Node destructor, detailed below.
+^^UPDATE: We now leave it up to the client whether or not they want
+this automatic deletion of their data. MLH_Map's constructor
+receives a bool as a parameter, called 'wipe', that determines
+whether the data will be "wiped" in the MLH_Map's constructor or
+not.
 
 
 Constants:
@@ -117,14 +122,9 @@ print entire tree (overload <<)
 ~MLH_Map: deleting all nodes.
     Call root's destructor.
 
-// In the actual MLH operations, this will only
-// ever be called when the Node is a leaf. But
-// in the MLH_Map destructor, this is called on
-// the root node, causing the entire tree and
-// all of its data to be deleted.
 Node::~Node()
     If stem, call delete on all non-null children.
-    Else (leaf), delete data pointed to by this node.
+    Else (leaf), and if 'wipe', delete data pointed to by this node.
     delete this node.
         
 // aka explode. Create children, rehash into them. It's
@@ -372,4 +372,41 @@ car, we will allocate new Car(Car::menu_constructor()), then pass this as a Vehi
 We will use the return values from MLH_Insert, MLH_delete, and MLH_get to determine whether an operation was successful
 or not, and we will output the result in a readable format to the user.
 
+CHANGES:
+In the actual implementation, we removed 'id' from Vehicle as it was redundantly stored as the Vehicle's key in
+MLH_Map. We also moved the 'type' string from Record to Vehicle and its subclasses, as that seemed to be something
+more inherent to the actual vehicle rather than its Record. We could alternatively have used typeid().name() for this,
+but went with an approach that had been covered in class.
+
+NOTES:
+'benchmark' runs well with no memory leaks, however 'vehicle' does not. A number of bytes are definitely lost for every
+insertion of a Car or a Car subtype. Valgrind indicates that this occurs in Car's menu_constructor(), specificially in what
+seems to be some string allocation function:
+
+==16228== 
+==16228== HEAP SUMMARY:
+==16228==     in use at exit: 29 bytes in 1 blocks
+==16228==   total heap usage: 18 allocs, 17 frees, 771 bytes allocated
+==16228== 
+==16228== 29 bytes in 1 blocks are definitely lost in loss record 1 of 1
+==16228==    at 0x4A06965: operator new(unsigned long) (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
+==16228==    by 0x3AA12BDCF8: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (in /usr/lib64/libstdc++.so.6.0.19)
+==16228==    by 0x3AA12BDEE5: std::string::_M_mutate(unsigned long, unsigned long, unsigned long) (in /usr/lib64/libstdc++.so.6.0.19)
+==16228==    by 0x3AA12BE4AD: std::string::_M_replace_safe(unsigned long, unsigned long, char const*, unsigned long) (in /usr/lib64/libstdc++.so.6.0.19)
+==16228==    by 0x40197E: Car::menu_constructor() (Car.cpp:23)
+==16228==    by 0x403F85: VehicleServiceCenter::allocate_vehicle() const (VehicleServiceCenter.cpp:131)
+==16228==    by 0x4041E9: VehicleServiceCenter::menu() (VehicleServiceCenter.cpp:179)
+==16228==    by 0x404F14: main (driver.cpp:13)
+==16228== 
+==16228== LEAK SUMMARY:
+==16228==    definitely lost: 29 bytes in 1 blocks
+==16228==    indirectly lost: 0 bytes in 0 blocks
+==16228==      possibly lost: 0 bytes in 0 blocks
+==16228==    still reachable: 0 bytes in 0 blocks
+==16228==         suppressed: 0 bytes in 0 blocks
+==16228== 
+==16228== For counts of detected and suppressed errors, rerun with: -v
+==16228== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 2 from 2)
+
+Yet we never use 'new' once in Car's menu_constructor, certainly not when allocating a string.
 
