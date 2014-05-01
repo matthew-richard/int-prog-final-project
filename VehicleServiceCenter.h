@@ -28,8 +28,7 @@ private:
 
     void add_task(Record * const r);
     void print_menu() const;
-    string select_type() const;
-    Vehicle* allocate_type(const string type) const;
+    Vehicle* allocate_vehicle() const;
     int read_id() const;
     void print_stats() const;
 };

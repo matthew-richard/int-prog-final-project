@@ -9,14 +9,27 @@ MLH_Map< T >::Node::Node() {
     size = 0;
 }
 
-// deletes node and any children AND DATA attached to it.
-// calling this on the root of a tree deletes the entire tree.
+// deletes node and any children (not data) attached to it.
+// calling this on the root of a tree deletes the entire tree
+// (but not its data).
 template <typename T>
 MLH_Map< T >::Node::~Node() {
     if (is_stem()) {
         for (int i = 0; i < HASH_RANGE; i++) {
             if (children[i] != NULL)
                 delete children[i];
+        }
+    }
+}
+
+// deletes any data attached to node and its children--but doesn't
+// delete nodes themselves.
+template <typename T>
+void MLH_Map< T >::Node::wipe_data() {
+    if (is_stem()) {
+        for (int i = 0; i < HASH_RANGE; i++) {
+            if (children[i] != NULL)
+                children[i]->wipe_data();
         }
     } else {
         for (int i = 0; i < size; i++)

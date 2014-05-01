@@ -8,6 +8,8 @@
 #include "Bus.h"
 
 
+int VehicleServiceCenter::read_id() const { return acceptInRange<int>("ID", 1, 100000); }
+
 Record* VehicleServiceCenter::add_vehicle(Vehicle * const v) {
     Record* ins = new Record(v);
     int id = 0;
@@ -87,7 +89,7 @@ void VehicleServiceCenter::add_task(Record * const r) {
     r->add_task(t);
     tasks_performed++;
 
-    cout << "Added the following task:" << endl
+    cout << "Added the following task to the specified " << r->v->get_type() << ":" << endl
          << t
          << endl << endl
          << "The " << r->v->get_type() << "'s updated info:"
@@ -101,16 +103,15 @@ void VehicleServiceCenter::print_stats() const {
          << "Tasks performed:\t" << tasks_performed << endl;
 }
 
-string VehicleServiceCenter::select_type() const {
+Vehicle* VehicleServiceCenter::allocate_vehicle() const {
+    int input = -1;
     cout << endl
          << "What type?" << endl
          << "0) Vehicle" << endl
          << "1) Car"     << endl
          << "2) Hybrid"  << endl
-         << "3) Motorcycle" << endl
-         << "4) Bus"     << endl;
-    int input = -1;
-    string types[5] = {"Vehicle", "Car", "Hybrid", "Motorcycle", "Bus"};
+         << "3) Bus" << endl
+         << "4) Motorcycle"     << endl;
 
     while (input < 0) {
         cout << "Input: ";
@@ -121,25 +122,28 @@ string VehicleServiceCenter::select_type() const {
             input = -1;
         }
     }
-    
-    return types[input];
-}
 
-Vehicle* VehicleServiceCenter::allocate_type(const string type) const {
-    if (type == "Vehicle")
-        return new Vehicle(Vehicle::menu_constructor());
-    else if (type == "Car")
-        return new Car(Car::menu_constructor());
-    else if (type == "Bus")
-        return new Bus(Bus::menu_constructor());
-    else if (type == "Motorcycle")
-        return new Motorcycle(Motorcycle::menu_constructor());
-    else if (type == "Hybrid")
-        return new Hybrid(Hybrid::menu_constructor());
-    return NULL;
+    switch(input) {
+        case 0:
+            return new Vehicle(Vehicle::menu_constructor());
+            break;
+        case 1:
+            return new Car(Car::menu_constructor());
+            break;
+        case 2:
+            return new Hybrid(Hybrid::menu_constructor());
+            break;
+        case 3:
+            return new Bus(Bus::menu_constructor());
+            break;
+        case 4:
+            return new Motorcycle(Motorcycle::menu_constructor());
+            break;
+        default:
+            return NULL;
+            break;
+    }
 }
-
-int VehicleServiceCenter::read_id() const { return acceptInRange<int>("ID", 1, 100000); }
 
 void VehicleServiceCenter::print_menu() const {
     cout << endl
@@ -158,7 +162,6 @@ void VehicleServiceCenter::menu() {
 
     while (input >= 0) {
         Vehicle* v = NULL;
-        string type = "";
         Record* ins = NULL;
         
         print_menu();
@@ -173,11 +176,8 @@ void VehicleServiceCenter::menu() {
                 input = -1;
                 break;
             case 1:
-                type = select_type();
-                v = allocate_type(type);
-                ins = add_vehicle(v);
-                if(ins != NULL)
-                    add_task(ins);
+                ins = add_vehicle(allocate_vehicle());
+                add_task(ins);
                 break;
             case 2:
                 checkout(read_id());                    

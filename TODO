@@ -59,10 +59,10 @@ finish design
 
 // move id to Record, out of Vehicle
 -/-Vehicle::print
-vice versa for Record's 'type'
-    bring together type methods
-    change type in all Vehicle subtype constructors
-add option to hard_destroy
+//vice versa for Record's 'type'
+  //  bring together type methods
+    //change type in all Vehicle subtype constructors
+//add option to hard_destroy
 
 // make stuff private?
 
@@ -76,4 +76,4 @@ add option to hard_destroy
 // ok to leave vehicles in static memory after program's finished?
 // declaring const when step's altered?
 
-    
+remaining memory leaks (in Car::menu_constructor) (?) submitting anyways  

@@ -8,6 +8,7 @@ using std::cout;
 using std::endl;
 using std::istringstream;
 
+/** ./benchmark [[range ops] [seed]]*/
 int main(int argc, char** argv) {
     int range = 100;
     int ops = 1000;
@@ -54,7 +55,9 @@ int main(int argc, char** argv) {
                 num_dels++;
                 break;
             case 'I':
-                m.MLH_insert(key, new int(i));
+                int* data = new int(i);
+                if (!m.MLH_insert(key, data))
+                    delete data;
                 num_inss++;
                 break;
         }

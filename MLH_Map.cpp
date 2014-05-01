@@ -23,9 +23,10 @@ template <typename T>
 void MLH_Map<T>::raw_print() const { subtree_print(cout, root); }
 
 template <typename T>
-MLH_Map< T >::MLH_Map()
+MLH_Map< T >::MLH_Map(bool w)
   : root (new Node()),
     print_entries(false),
+    wipe(w),
     steps(0)
 {
     widths[0] = 1;
@@ -35,7 +36,14 @@ MLH_Map< T >::MLH_Map()
 }
 
 template <typename T>
-MLH_Map< T >::~MLH_Map() { delete root; }
+MLH_Map< T >::~MLH_Map() {
+    if (wipe)
+        wipe_data();
+    delete root;
+}
+
+template <typename T>
+void MLH_Map< T >::wipe_data() { root->wipe_data(); }
 
 template <typename T>
 int MLH_Map< T >::MLH_height() const {
@@ -114,7 +122,6 @@ void MLH_Map< T >::collapse(Node* n, int level) {
         // copy keys and pvalues to parent
         for (int j = 0; j < child->size; j++)
             n->put(child->keys[j], child->pvalues[j]);
-        child->size = 0;
 
         delete child;
         deleted_children++;

@@ -11,10 +11,16 @@ const int NUM_ROWS = 8;   // ML_hash supports levels 1-8
 template <typename T>
 class MLH_Map {
 
+// print tree
+template <typename U>
+friend ostream &operator<<(ostream &output, const MLH_Map< U > &m);
+
+private:
     class Node {
     public:
         Node();
         ~Node();
+        void wipe_data(); // deletes not only nodes but also data pointed to by those nodes
 
         int keys[HASH_RANGE];
         T* pvalues[HASH_RANGE];
@@ -34,13 +40,26 @@ class MLH_Map {
 
     };
 
-    // print tree
-    template <typename U>
-    friend ostream &operator<<(ostream &output, const MLH_Map< U > &m);
+    Node* root;
+    bool print_entries;
+    const bool wipe; // whether or not to call wipe_data before destroying
+    int widths[NUM_ROWS + 1]; // # hash nodes in each row (widths[0] always = 1)
+    mutable int steps; // effort spent. Altered in 'const' functions like 'get',
+                       // so we made it mutable.
+    
+    void expand(Node * const n, const int level); // aka explode
+    void collapse(Node * const n, const int level);
 
+    // NULL if failure
+    int subtree_insert(Node * const n, const int level, const int key, T * const pvalue);
+    int subtree_delete(Node * const n, const int level, const int key, T** ppvalue);
+    T* subtree_get(Node * const n, const int level, const int key) const;
+    ostream &subtree_print(ostream &output, Node * const n) const;
+
+    void wipe_data(); // deletes all data pointed to by nodes, but not nodes themselves
 public:
-    MLH_Map();
-    ~MLH_Map();
+    MLH_Map(bool w = true); // w sets 'wipe'
+    ~MLH_Map(); // shallow delete; deletes nodes but leaves data untouched
 
     int MLH_height() const;
     int MLH_size() const;
@@ -55,22 +74,6 @@ public:
     T* MLH_get(const int key) const;
 
     void raw_print() const;
-
-private:
-    Node* const root;
-    bool print_entries;
-    int widths[NUM_ROWS + 1]; // # hash nodes in each row (widths[0] always = 1)
-    mutable int steps; // effort spent. Altered in 'const' functions like 'get',
-                       // so we made it mutable.
-    
-    void expand(Node * const n, const int level); // aka explode
-    void collapse(Node * const n, const int level);
-
-    // NULL if failure
-    int subtree_insert(Node * const n, const int level, const int key, T * const pvalue);
-    int subtree_delete(Node * const n, const int level, const int key, T** ppvalue);
-    T* subtree_get(Node * const n, const int level, const int key) const;
-    ostream &subtree_print(ostream &output, Node * const n) const;
 };
 
 #include "MLH_Map_Node.cpp"
