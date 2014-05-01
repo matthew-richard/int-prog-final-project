@@ -161,7 +161,6 @@ void VehicleServiceCenter::menu() {
     int input = 0;
 
     while (input >= 0) {
-        Vehicle* v = NULL;
         Record* ins = NULL;
         
         print_menu();
@@ -177,6 +176,7 @@ void VehicleServiceCenter::menu() {
                 break;
             case 1:
                 ins = add_vehicle(allocate_vehicle());
+                cout << endl << "First task:";
                 add_task(ins);
                 break;
             case 2:

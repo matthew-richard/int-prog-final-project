@@ -20,6 +20,7 @@ public:
         gas_type(g_t),
         engine_pollution(e_p)
     { type = "Car"; }
+    virtual ~Car() {} // prevents string memory leak
 
     static Car menu_constructor();
 

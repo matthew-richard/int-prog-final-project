@@ -376,7 +376,8 @@ CHANGES:
 In the actual implementation, we removed 'id' from Vehicle as it was redundantly stored as the Vehicle's key in
 MLH_Map. We also moved the 'type' string from Record to Vehicle and its subclasses, as that seemed to be something
 more inherent to the actual vehicle rather than its Record. We could alternatively have used typeid().name() for this,
-but went with an approach that had been covered in class.
+but according to Google this requires something called RTTI information to be available, and we weren't sure if that
+were actually the case.
 
 NOTES:
 'benchmark' runs well with no memory leaks, however 'vehicle' does not. A number of bytes are definitely lost for every
@@ -409,4 +410,9 @@ seems to be some string allocation function:
 ==16228== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 2 from 2)
 
 Yet we never use 'new' once in Car's menu_constructor, certainly not when allocating a string.
+
+UPDATE:
+cs120-help informed us that this leak is a result of the way strings are allocated in C++, and provided
+the fix of adding an empty destructor to Car and Vehicle. Implementing this has eliminated the memory leak
+detailed above.
 

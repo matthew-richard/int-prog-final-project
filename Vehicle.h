@@ -17,6 +17,7 @@ class Vehicle {
 public:
     Vehicle(const int y, const string c, const double m)
       : year(y), color(c), mileage(m), type("Vehicle") {}
+    virtual ~Vehicle() {} // prevents string memory leak in Car
 
     static Vehicle menu_constructor();
 

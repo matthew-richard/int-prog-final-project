@@ -76,4 +76,4 @@ finish design
 // ok to leave vehicles in static memory after program's finished?
 // declaring const when step's altered?
 
-remaining memory leaks (in Car::menu_constructor) (?) submitting anyways  
+// remaining memory leaks (in Car::menu_constructor) (?) submitting anyways  
