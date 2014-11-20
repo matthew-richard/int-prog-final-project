@@ -24,7 +24,8 @@ IMPORTANT FILES:
 
 Final_project.txt       The assignment description (not made by me)
 
-design.txt              The design document I wrote, planning out my implementation before I wrote any code. Look here for
-                        descriptions of most of the source files!
+design.txt              The design document I wrote, planning out my implementation before I wrote any code.
+                        Look here for descriptions of most of the source files!
 
-results.txt             Results of running 'benchmark' executable with various parameters, following format required by the                          assignment
+results.txt             Results of running 'benchmark' executable with various parameters, following format
+                        required by the assignment
