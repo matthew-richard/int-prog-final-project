@@ -1,0 +1,473 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!-- saved from url=(0071)http://gaming.jhu.edu/~phf/2013/fall/cs226/assignment-graph-bacon.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><!--$Id: _begin.shtml 1025 2012-07-01 23:47:19Z phf $--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <link rel="stylesheet" href="./Assignment_files/default.css" type="text/css">
+<!--  <link rel="stylesheet" href="../../../css/course/orangish.css" type="text/css" />-->
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <title>JHU / CS / 600.226: Data Structures</title>
+ <style type="text/css"></style></head>
+ <!-- This used to be a secret message. -->
+ <body>
+  <div id="head">
+ <!--$Id: _header.shtml 1136 2012-09-03 14:17:43Z phf $-->
+ <h1>600.226: Data Structures</h1>
+ <p class="right">
+  <a href="http://www.cs.jhu.edu/">Department of Computer Science</a><br>
+  <a href="http://www.jhu.edu/">The Johns Hopkins University</a>
+ </p>
+</div>
+
+  <div id="offering">
+ <!--$Id: _offering.shtml 1309 2013-09-04 15:37:57Z phf $-->
+ <p class="left">
+  Fall Semester 2013
+ </p>
+ <p class="right">
+  September 4, 2013 – December 6, 2013
+ </p>
+</div>
+
+  <div id="root">
+   <div id="menu">
+ <!--$Id: _menu.shtml 1311 2013-09-06 19:18:19Z phf $-->
+ <ul>
+  <li><a href="http://gaming.jhu.edu/~phf/2013/fall/cs226/">Home</a></li>
+  <li><a href="http://piazza.com/jhu/fall2013/600226">Piazza</a></li>
+  <li><a href="http://gaming.jhu.edu/~phf/policies.shtml">Policies</a></li>
+ </ul>
+</div>
+
+
+
+<!--$Id: assignment-graph-bacon.shtml 1357 2013-10-18 23:55:53Z phf $-->
+
+
+<div id="main">
+
+<h2>Assignment 7: Six Degrees of Kevin Bacon</h2>
+
+<p>
+<strong>Out on:</strong>
+October 18, 2013
+<br>
+<strong>Due by:</strong>
+October 25, 2013 before 10:00 pm
+<br>
+<strong>Collaboration:</strong>
+None
+<br>
+<strong>Grading:</strong>
+Packaging 10%,
+Style 10% (where applicable),
+Performance 10% (where applicable),
+Testing 20% (where applicable),
+Functionality 50% (where applicable)
+</p>
+
+<h3>Overview</h3>
+
+<p>
+ The seventh assignment is all about graphs, specifically about graphs
+ of movies and the actors and actresses that star in them.
+ 
+ You'll implement a graph data structure following the interface we
+ designed in lecture, and you'll implement it using the
+ <strong>incidence list</strong> representation (mostly because that
+ representation is <strong>way</strong> more memory-efficient, and
+ we'll need that below).
+
+ You'll also use your graph implementation to help you play the
+ famous
+ <a href="http://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon"><em>Six Degrees of Kevin Bacon</em></a>
+ game.
+
+ You'll need to grab
+ <a href="http://gaming.jhu.edu/~phf/2013/fall/cs226/src/graphs.tar.gz">this archive</a>
+ for the required interfaces.
+
+ Maybe you want to take a quick tour of the files
+ before you read on?
+</p>
+
+<h3>Problem 1: Graph Implementation (75%)</h3>
+
+<p>
+ Your first task for this assignment is to develop an efficient
+ implementation of the 
+ <code>Graph&lt;V, E&gt;</code>
+ interface for directed graphs.
+
+ The interface follows our design from lecture rather closely
+ with just one minor difference:
+</p>
+
+<ol>
+ <li>We don't use our own custom exceptions anymore, instead
+ we reuse Java's <code>IllegalArgumentException</code> for
+ just about anything.</li>
+</ol>
+
+<p>
+ These differences are also <strong>elaborated in the Javadoc comments</strong>
+ for the interfaces.
+
+ You will most likely <strong>not</strong> be able to pull
+ this one off with <code>private static</code> nested classes,
+ you'll need <code>private</code> <strong>inner</strong> classes
+ instead.
+
+ The reason for this is that we need to access <strong>both</strong>
+ generic type parameters within <strong>each</strong> of the inner classes
+ (vertex nodes will refer to edge nodes and vice versa),
+ something that nested classes won't allow us to do.
+
+ <strong>Be prepared for some serious pain as you navigate
+ the weird world of inner classes!</strong>
+</p>
+
+<p>
+ <strong>Please name your class implementing our interface
+ <code>SparseGraph&lt;V, E&gt;</code> and put it into a
+ file called <code>SparseGraph.java</code> for this
+ assignment!</strong>
+
+ You are allowed to use the Java collection classes
+ <code>java.util.List&lt;T&gt;</code>,
+ <code>java.util.ArrayList&lt;T&gt;</code>,
+ and
+ <code>java.util.LinkedList&lt;T&gt;</code>
+ for your implementation if you would like.
+
+ This is particularly convenient because you will
+ need to return
+ <code>java.lang.Iterable&lt;T&gt;</code>
+ objects from several methods, and those classes
+ already implement that interface.
+</p>
+
+<p>
+ You should provide a <code>toString()</code> method
+ in addition to the methods required by the
+ <code>Graph&lt;V, E&gt;</code>
+ interface.
+
+ For a simple
+ <code>Graph&lt;String, String&gt;</code>
+ into which the nodes <code>A</code> and
+ <code>B</code> as well as an edge
+ <code>X</code> from <code>A</code> to
+ <code>B</code> have been inserted, the
+ string should have the following format:
+</p>
+
+<pre>digraph {
+  "A";
+  "B";
+  "A" -&gt; "B" [label="X"];
+}
+</pre>
+
+<p>
+ This strange format for printing the graph is useful because
+ the various tools in the
+ <a href="http://www.graphviz.org/"><code>GraphViz</code></a>
+ package can be used to turn the strings into actual, visual graphs:
+</p>
+
+<img src="./Assignment_files/graph.png">
+
+<p>
+ This particular image was made using the command
+ "<code>dot -Tpng graph.dot &gt;graph.png</code>"
+ if you are curious.
+ 
+ Note that you're <strong>not</strong> required to do anything
+ in particular with <code>GraphViz</code>, just follow the format
+ as described and you'll be fine.
+</p>
+
+<p>
+ Your <code>SparseGraph&lt;V, E&gt;</code> class should come
+ with a full suite of JUnit 4 test cases <strong>using
+ theories</strong> in a file <code>TestGraph.java</code>.
+
+ Be sure to test <strong>all</strong> methods and be sure
+ to test <strong>all</strong> exceptions for error situations
+ as well.
+</p>
+
+<h3>Problem 2: Finding Kevin Bacon (25%)</h3>
+
+<p>
+ Your second task for this assignment is to write a program that
+ will help you play the
+ <a href="http://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon"><em>Six Degrees of Kevin Bacon</em></a>
+ game.
+
+ This game is played on a graph of movies and actors/actresses
+ who starred in them.
+
+ The <em>Bacon Number</em> is defined as follows: Kevin Bacon
+ has a Bacon Number of 0; people who co-starred in a movie with
+ Kevin Bacon have a Bacon Number of 1; people who co-starred in
+ a movie with someone who has a Bacon Number of 1 in turn have
+ a Bacon Number of 2; and so on.
+
+ Given any actor/actress, the goal of the game is to establish
+ their Bacon Number by a sequence of movies and co-stars. For
+ example, using the "action" data set given below, we can show
+ that <em>Peter Sellers</em> has a Bacon Number of 3 as follows:
+</p>
+
+<pre>Sellers, Peter
+Casino Royale (1967)
+O'Toole, Peter (I)
+Troy (2004)
+Hedlund, Garrett
+Death Sentence (2007)
+Bacon, Kevin
+</pre>
+
+<p>
+ Kevin Bacon (0) starred in Death Sentence with Garrett Hedlund (1)
+ who starred in Troy with Peter O'Toole (2) who starred in Casino Royale
+ with Peter Sellers (3).
+
+ Since you might not know who
+ <a href="http://en.wikipedia.org/wiki/Peter_Sellers">Peter Sellers</a>
+ is, let's try <em>Arnold Schwarzenegger</em> instead:
+</p>
+
+<pre>Schwarzenegger, Arnold
+Rundown, The (2003)
+Lucking, William
+River Wild, The (1994)
+Bacon, Kevin
+</pre>
+
+<p>
+ So Arnold has a Bacon Number of 2 according to the "action" data set.
+
+ Interestingly this works <strong>way</strong> in the past as well:
+</p>
+
+<pre>De Rosselli, Rex
+Lion's Claws, The (1918)
+Brinley, Charles
+Adventure in Sahara (1938)
+Lawrence, Marc (I)
+Big Easy, The (1987)
+Goodman, John (I)
+Death Sentence (2007)
+Bacon, Kevin
+</pre>
+
+<p>
+ Turns out that
+ <a href="http://en.wikipedia.org/wiki/Rex_De_Rosselli">Rex De Rosselli</a>
+ died in 1941 and yet he has a Bacon Number of just 4!
+
+ Actually Rex <strong>really</strong> has a Bacon Number of 3 but we need
+ to use a much bigger data set to show this:
+</p>
+
+<pre>De Rosselli, Rex
+Dangerous Adventure, A (1922)
+McCullough, Philo
+Chamber of Horrors (1966)
+Danova, Cesare
+Animal House (1978)
+Bacon, Kevin
+</pre>
+
+<p>
+ Here are two data sets suitable for the program (courtesy of
+ <a href="http://introcs.cs.princeton.edu/java/45graph/">Robert Sedgewick</a>):
+</p>
+
+<ul>
+ <li><a href="http://gaming.jhu.edu/~phf/2013/fall/cs226/action06.txt"><code>action06.txt</code></a> (4.4 MB)</li>
+ <li><a href="http://gaming.jhu.edu/~phf/2013/fall/cs226/all06.txt"><code>all06.txt</code></a> (58 MB)</li>
+</ul>
+
+<p>
+ The format of these data sets is rather simple: Each line is a movie,
+ and each movie consists of several fields separated by the "/" character.
+
+ The first field is the name of the movie itself, all the following fields
+ are the names of actors and actresses starring in the movie.
+
+ Reading this data is not complicated (although we did have to clean up
+ the data sets to work around Java's weird issues with UTF-8 files), but
+ we hand you the parsing code anyway so you can focus on the search
+ algorithm instead.
+</p>
+
+<!--
+<p>
+ Be careful to build a <strong>bipartite</strong> graph in which both
+ movies <strong>and</strong> actors are vertices while the edges carry
+ no valuable information whatsoever.
+
+ If we built a graph in which only actors are vertices and the edges
+ are labeled by the movie they starred in together, the computation
+ that follows would take <strong>much</strong> longer.
+</p>
+-->
+
+<p>
+ In order to find the smallest Bacon Number for an actor we proceed
+ as follows: First we identify the vertices for both Kevin Bacon and
+ the actor in question (you already have that code).
+
+ Then we start a <strong>breadth-first search</strong> at the vertex
+ for Kevin Bacon; as we do this we keep track of the "previous vertex"
+ that got us to the one we're currently investigating.
+
+ Once we find the vertex for the other actor, we are done: We just
+ have to print out the path that got us here.
+
+ <strong>This implementation of BFS is the only thing you have to
+ write for this problem!</strong>
+
+ Please put your code into the file <code>Kevin.java</code> and
+ make sure that the user can run it as follows from the command
+ line:
+</p>
+
+<pre>$ java Kevin action06.txt "De Rosselli, Rex"
+De Rosselli, Rex
+Lion's Claws, The (1918)
+Brinley, Charles
+Adventure in Sahara (1938)
+Lawrence, Marc (I)
+Big Easy, The (1987)
+Goodman, John (I)
+Death Sentence (2007)
+Bacon, Kevin
+</pre>
+
+<p>
+ In other words, the first argument to the program is the database
+ to read and the second argument to the program is the actor for whom
+ we want to determine the Bacon Number.
+
+ You don't have to worry too much about error handling for this problem,
+ as long as <em>correct</em> command line invocations (a database file that's
+ actually present and has the correct format) work you'll be fine.
+</p>
+
+<h3>Deliverables</h3>
+
+<p>
+ Please turn in a
+ <a href="http://www.gzip.org/"><code>gzip</code></a>
+ compressed
+ <a href="http://catb.org/~esr/jargon/html/T/tarball.html">tarball</a>
+ of your assignment;
+ the filename should be
+ <code>cs226-assignment-7-<em>name</em>.tar.gz</code>
+ with <code><em>name</em></code> replaced by the first part of the
+ email address you used to register on <a href="http://piazza.com/">Piazza</a>
+ (so I would use <code>cs226-assignment-7-phf.tar.gz</code>).
+
+ The tarball should contain <strong>no</strong> derived files whatsoever
+ (i.e. no <code>.class</code> files, no <code>.html</code> files, etc.),
+ but allow building <strong>all</strong> derived files.
+
+ Include a <code>README</code> file that briefly explains what your
+ programs do and contains any other notes you want us to check out
+ before grading; your answers to <strong>written</strong> problems
+ should be in this file as well.
+</p>
+
+<h3>Grading</h3>
+
+<p>
+For reference, here is a short explanation of the grading criteria;
+some of the criteria don't apply to all problems, and not all of the
+criteria are used on all assignments.
+
+<strong>Packaging</strong> refers to the proper organization of the
+stuff you hand in, following both the guidelines for Deliverables
+above as well as the general submission instructions for assignments.
+
+<strong>Style</strong> refers to Java programming style, including
+things like consistent indentation, appropriate identifier names,
+useful comments, suitable <code>javadoc</code> documentation, etc.
+as enforced by <a href="http://checkstyle.sf.net/">checkstyle</a>
+with our <a href="http://gaming.jhu.edu/~phf/jhu_checks.xml">JHU configuration file</a>.
+Style also includes proper modularization of your code (into
+interfaces, classes, methods, and using public, protected, and
+private appropriately).
+Simple, clean, readable code is what you should be aiming for.
+
+<strong>Testing</strong> refers to proper unit tests for all of
+the data structure classes you developed for this assignment,
+using the <a href="http://www.junit.org/">JUnit 4</a> framework.
+Make sure you test <strong>all</strong> (implied) axioms that
+you can think of and <strong>all</strong> exception conditions
+that are relevant.
+
+<strong>Performance</strong> refers to how fast/with how little
+memory your program can produce the required results compared to
+other submissions.
+
+<strong>Functionality</strong> refers to your programs being
+able to do what they should according to the specification
+given above; if the specification is ambiguous and you had
+to make a certain choice, defend that choice in your
+<code>README</code> file.
+</p>
+
+<p>
+<strong>
+If your programs cannot be built you will get no points whatsoever.
+
+If your programs cannot be built without warnings using
+<code>javac -Xlint:all</code>
+we will take off 10% (except if you document a very good reason).
+
+If your programs fail miserably even once,
+i.e. terminate with an exception of any kind,
+we will take off 10% (however we'll also take those 10% off if
+you're trying to be smart by wrapping your whole program into
+a universal try-catch).
+
+Finally, make sure to include your name and email address in
+every file you turn in (well, in every file for which it makes
+sense anyway)!
+</strong>
+</p>
+
+</div>
+
+<!--$Id: _end.shtml 1136 2012-09-03 14:17:43Z phf $-->
+</div> <!-- root -->
+<div id="foot">
+ <!--$Id: _footer.shtml 1145 2013-07-02 12:33:09Z phf $-->
+ <p class="left">
+  Copyright © 2002–2013
+  <a href="http://www.factorial.com/forward/phf/work/">Peter H.
+   Fröhlich</a>.
+  All rights reserved.
+  <br>
+  Updated:
+  $Id: assignment-graph-bacon.shtml 1357 2013-10-18 23:55:53Z phf $
+ </p>
+ <p class="right">
+  <a href="http://validator.w3.org/check?uri=referer">
+   <img src="./Assignment_files/valid-xhtml11" alt="Valid XHTML 1.1" height="31" width="88">
+  </a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer">
+   <img src="./Assignment_files/vcss" alt="Valid CSS!" height="31" width="88">
+  </a>
+ </p>
+</div>
+
+
+
+
+</body></html>
